@@ -110,7 +110,7 @@ export function CantonWalletConnect({ linkOnly = false, onSuccess }: CantonWalle
         <button
           onClick={handleWalletConnect}
           disabled={mode === 'connecting'}
-          className="w-full flex items-center justify-center gap-2 bg-indigo-600 text-white py-2.5 px-4 rounded-lg font-medium text-sm hover:bg-indigo-700 transition-colors disabled:opacity-50"
+          className="w-full flex items-center justify-center gap-2 bg-purple-600 text-white py-2.5 px-4 rounded-lg font-medium text-sm hover:bg-purple-700 transition-colors disabled:opacity-50"
         >
           {mode === 'connecting' ? (
             <Loader2 size={16} className="animate-spin" />
@@ -120,7 +120,7 @@ export function CantonWalletConnect({ linkOnly = false, onSuccess }: CantonWalle
           {mode === 'connecting' ? 'Connecting...' : 'Connect Canton Wallet'}
         </button>
       ) : (
-        <div className="rounded-lg border border-zinc-200 p-3 bg-zinc-50 text-sm text-zinc-600 flex gap-2">
+        <div className="rounded-lg border border-zinc-200 p-3 bg-muted text-sm text-zinc-600 flex gap-2">
           <AlertCircle size={15} className="text-amber-500 shrink-0 mt-0.5" />
           <span>
             Canton wallet extension not detected.{' '}
@@ -128,7 +128,7 @@ export function CantonWalletConnect({ linkOnly = false, onSuccess }: CantonWalle
               href="https://sync.global"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-indigo-600 hover:underline inline-flex items-center gap-0.5"
+              className="text-purple-600 hover:underline inline-flex items-center gap-0.5"
             >
               Get the wallet <ExternalLink size={11} />
             </a>
@@ -155,7 +155,7 @@ export function CantonWalletConnect({ linkOnly = false, onSuccess }: CantonWalle
             value={partyId}
             onChange={(e) => setPartyId(e.target.value)}
             placeholder="yourname::1a2b3c4d5e6f..."
-            className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-purple-500"
             autoFocus
           />
           <p className="text-xs text-zinc-400">
@@ -164,7 +164,7 @@ export function CantonWalletConnect({ linkOnly = false, onSuccess }: CantonWalle
           <button
             type="submit"
             disabled={!partyId || submitting}
-            className="w-full bg-indigo-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+            className="w-full bg-purple-600 text-white py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
           >
             {submitting && <Loader2 size={14} className="animate-spin" />}
             {submitting ? 'Connecting...' : 'Connect'}

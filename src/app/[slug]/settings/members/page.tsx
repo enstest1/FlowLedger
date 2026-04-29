@@ -29,35 +29,35 @@ export default async function MembersPage({
   const isAdmin = membership.role === 'ADMIN'
 
   const roleColors: Record<string, string> = {
-    ADMIN: 'bg-indigo-100 text-indigo-700',
+    ADMIN: 'bg-purple-100 text-purple-700',
     TREASURY: 'bg-sky-100 text-sky-700',
     APPROVER: 'bg-amber-100 text-amber-700',
-    ACCOUNTANT: 'bg-zinc-100 text-zinc-700',
+    ACCOUNTANT: 'bg-muted text-foreground',
   }
 
   return (
     <div className="max-w-3xl space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Team Members</h1>
-          <p className="text-zinc-500 text-sm mt-0.5">
+          <h1 className="text-xl font-semibold text-foreground">Team Members</h1>
+          <p className="text-muted-foreground text-sm mt-0.5">
             {members.length} member{members.length !== 1 ? 's' : ''}
           </p>
         </div>
       </div>
 
       {/* Members list */}
-      <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden">
+      <div className="bg-card border border-border overflow-hidden">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-zinc-100">
-              <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+            <tr className="border-b border-border">
+              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Member
               </th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Role
               </th>
-              <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+              <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                 Joined
               </th>
             </tr>
@@ -67,20 +67,20 @@ export default async function MembersPage({
               <tr key={m.id} className="border-b border-zinc-50">
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-zinc-100 rounded-full flex items-center justify-center">
-                      <Users size={14} className="text-zinc-400" />
+                    <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
+                      <Users size={14} className="text-muted-foreground/70" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-zinc-900">
+                      <p className="text-sm font-medium text-foreground">
                         {m.user.name || m.user.email}
                         {m.user.id === session.user.id && (
-                          <span className="text-xs text-zinc-400 ml-1.5">
+                          <span className="text-xs text-muted-foreground/70 ml-1.5">
                             (you)
                           </span>
                         )}
                       </p>
                       {m.user.name && (
-                        <p className="text-xs text-zinc-400">{m.user.email}</p>
+                        <p className="text-xs text-muted-foreground/70">{m.user.email}</p>
                       )}
                     </div>
                   </div>
@@ -88,13 +88,13 @@ export default async function MembersPage({
                 <td className="px-4 py-3">
                   <span
                     className={`text-xs font-medium px-2 py-0.5 rounded-full ${
-                      roleColors[m.role] ?? 'bg-zinc-100 text-zinc-700'
+                      roleColors[m.role] ?? 'bg-muted text-foreground'
                     }`}
                   >
                     {m.role}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-sm text-zinc-500">
+                <td className="px-4 py-3 text-sm text-muted-foreground">
                   {format(new Date(m.createdAt), 'MMM d, yyyy')}
                 </td>
               </tr>

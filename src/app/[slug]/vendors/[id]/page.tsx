@@ -43,58 +43,58 @@ export default async function VendorDetailPage({
       <div className="flex items-center gap-3">
         <Link
           href={`/${slug}/vendors`}
-          className="text-zinc-400 hover:text-zinc-700 transition-colors"
+          className="text-muted-foreground/70 hover:text-foreground transition-colors"
         >
           <ArrowLeft size={18} />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">{vendor.name}</h1>
-          <p className="text-zinc-500 text-sm mt-0.5">{vendor.email}</p>
+          <h1 className="text-xl font-semibold text-foreground">{vendor.name}</h1>
+          <p className="text-muted-foreground text-sm mt-0.5">{vendor.email}</p>
         </div>
       </div>
 
       <div className="grid md:grid-cols-2 gap-4">
-        <div className="bg-white rounded-xl border border-zinc-200 p-5">
-          <h2 className="text-sm font-semibold text-zinc-700 mb-4">
+        <div className="bg-card border border-border p-5">
+          <h2 className="text-sm font-semibold text-foreground mb-4">
             Vendor Details
           </h2>
           <dl className="space-y-3">
             <div>
-              <dt className="text-xs text-zinc-400">Canton Party ID</dt>
+              <dt className="text-xs text-muted-foreground/70">Canton Party ID</dt>
               <dd className="mt-0.5">
                 <PartyId id={vendor.cantonPartyId} />
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-400">Preferred Asset</dt>
-              <dd className="text-sm font-medium text-zinc-900 mt-0.5">
+              <dt className="text-xs text-muted-foreground/70">Preferred Asset</dt>
+              <dd className="text-sm font-medium text-foreground mt-0.5">
                 {vendor.preferredAsset}
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-400">Status</dt>
+              <dt className="text-xs text-muted-foreground/70">Status</dt>
               <dd className="mt-0.5">
                 <StatusBadge status={vendor.status} />
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-400">Added</dt>
-              <dd className="text-sm text-zinc-700 mt-0.5">
+              <dt className="text-xs text-muted-foreground/70">Added</dt>
+              <dd className="text-sm text-foreground mt-0.5">
                 {format(new Date(vendor.createdAt), 'MMMM d, yyyy')}
               </dd>
             </div>
             {vendor.notes && (
               <div>
-                <dt className="text-xs text-zinc-400">Notes</dt>
-                <dd className="text-sm text-zinc-700 mt-0.5">{vendor.notes}</dd>
+                <dt className="text-xs text-muted-foreground/70">Notes</dt>
+                <dd className="text-sm text-foreground mt-0.5">{vendor.notes}</dd>
               </div>
             )}
           </dl>
         </div>
 
-        <div className="bg-white rounded-xl border border-zinc-200 p-5">
+        <div className="bg-card border border-border p-5">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-semibold text-zinc-700">
+            <h2 className="text-sm font-semibold text-foreground">
               Canton Pre-Approval
             </h2>
             {isExpired && (
@@ -105,14 +105,14 @@ export default async function VendorDetailPage({
           </div>
           <dl className="space-y-3">
             <div>
-              <dt className="text-xs text-zinc-400">Status</dt>
+              <dt className="text-xs text-muted-foreground/70">Status</dt>
               <dd className="mt-0.5">
                 <StatusBadge status={vendor.preApprovalStatus} />
               </dd>
             </div>
             <div>
-              <dt className="text-xs text-zinc-400">Expires</dt>
-              <dd className="text-sm text-zinc-700 mt-0.5">
+              <dt className="text-xs text-muted-foreground/70">Expires</dt>
+              <dd className="text-sm text-foreground mt-0.5">
                 {vendor.preApprovalExpiry
                   ? format(new Date(vendor.preApprovalExpiry), 'MMMM d, yyyy')
                   : '—'}
@@ -139,28 +139,28 @@ export default async function VendorDetailPage({
       </div>
 
       {/* Invoice History */}
-      <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden">
-        <div className="p-5 border-b border-zinc-100">
-          <h2 className="font-semibold text-zinc-900">Invoice History</h2>
+      <div className="bg-card border border-border overflow-hidden">
+        <div className="p-5 border-b border-border">
+          <h2 className="font-semibold text-foreground">Invoice History</h2>
         </div>
         {vendor.invoices.length === 0 ? (
           <div className="p-8 text-center">
-            <p className="text-sm text-zinc-400">No invoices yet</p>
+            <p className="text-sm text-muted-foreground/70">No invoices yet</p>
           </div>
         ) : (
           <table className="w-full">
             <thead>
-              <tr className="border-b border-zinc-100">
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+              <tr className="border-b border-border">
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Invoice
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Amount
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Status
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Due Date
                 </th>
               </tr>
@@ -169,26 +169,26 @@ export default async function VendorDetailPage({
               {vendor.invoices.map((inv) => (
                 <tr
                   key={inv.id}
-                  className="border-b border-zinc-50 hover:bg-zinc-50 transition-colors"
+                  className="border-b border-zinc-50 hover:bg-black/5 transition-colors"
                 >
                   <td className="px-4 py-3">
                     <Link
                       href={`/${slug}/invoices/${inv.id}`}
-                      className="text-sm font-medium text-indigo-600 hover:text-indigo-700"
+                      className="text-sm font-medium text-purple-600 hover:text-purple-700"
                     >
                       {inv.invoiceNumber}
                     </Link>
-                    <p className="text-xs text-zinc-400 mt-0.5 max-w-xs truncate">
+                    <p className="text-xs text-muted-foreground/70 mt-0.5 max-w-xs truncate">
                       {inv.description}
                     </p>
                   </td>
-                  <td className="px-4 py-3 text-sm text-zinc-900">
+                  <td className="px-4 py-3 text-sm text-foreground">
                     {formatAmount(inv.amount, inv.assetId)}
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={inv.status} />
                   </td>
-                  <td className="px-4 py-3 text-sm text-zinc-500">
+                  <td className="px-4 py-3 text-sm text-muted-foreground">
                     {format(new Date(inv.dueDate), 'MMM d, yyyy')}
                   </td>
                 </tr>

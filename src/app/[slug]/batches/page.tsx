@@ -32,15 +32,15 @@ export default async function BatchesPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Payroll Batches</h1>
-          <p className="text-zinc-500 text-sm mt-0.5">
+          <h1 className="text-xl font-semibold text-foreground">Payroll Batches</h1>
+          <p className="text-muted-foreground text-sm mt-0.5">
             {batches.length} batch{batches.length !== 1 ? 'es' : ''}
           </p>
         </div>
         {canCreate && (
           <Link
             href={`/${slug}/batches/new`}
-            className="flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+            className="flex items-center gap-1.5 bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors"
           >
             <Plus size={14} />
             New Batch
@@ -49,18 +49,18 @@ export default async function BatchesPage({
       </div>
 
       {batches.length === 0 ? (
-        <div className="bg-white rounded-xl border border-zinc-200 p-16 text-center">
-          <div className="w-12 h-12 bg-zinc-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Package size={20} className="text-zinc-400" />
+        <div className="bg-card border border-border p-16 text-center">
+          <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+            <Package size={20} className="text-muted-foreground/70" />
           </div>
-          <h3 className="font-semibold text-zinc-900 mb-2">No batches yet</h3>
-          <p className="text-sm text-zinc-500 mb-4">
+          <h3 className="font-semibold text-foreground mb-2">No batches yet</h3>
+          <p className="text-sm text-muted-foreground mb-4">
             Create a payroll batch to settle multiple approved invoices at once.
           </p>
           {canCreate && (
             <Link
               href={`/${slug}/batches/new`}
-              className="inline-flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+              className="inline-flex items-center gap-1.5 bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors"
             >
               <Plus size={14} />
               New Batch
@@ -68,29 +68,29 @@ export default async function BatchesPage({
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden">
+        <div className="bg-card border border-border overflow-hidden">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-zinc-100">
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+              <tr className="border-b border-border">
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Batch
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Asset
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Total
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Items
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Status
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Executed
                 </th>
-                <th className="text-right px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -99,26 +99,26 @@ export default async function BatchesPage({
               {batches.map((batch) => (
                 <tr
                   key={batch.id}
-                  className="border-b border-zinc-50 hover:bg-zinc-50 transition-colors"
+                  className="border-b border-zinc-50 hover:bg-black/5 transition-colors"
                 >
                   <td className="px-4 py-3">
-                    <p className="text-sm font-medium text-zinc-900">
+                    <p className="text-sm font-medium text-foreground">
                       {batch.name}
                     </p>
                   </td>
-                  <td className="px-4 py-3 text-sm text-zinc-700">
+                  <td className="px-4 py-3 text-sm text-foreground">
                     {batch.assetId}
                   </td>
-                  <td className="px-4 py-3 text-sm font-medium text-zinc-900">
+                  <td className="px-4 py-3 text-sm font-medium text-foreground">
                     {formatAmount(batch.totalAmount, batch.assetId)}
                   </td>
-                  <td className="px-4 py-3 text-sm text-zinc-700">
+                  <td className="px-4 py-3 text-sm text-foreground">
                     {batch.itemCount}
                   </td>
                   <td className="px-4 py-3">
                     <StatusBadge status={batch.status} />
                   </td>
-                  <td className="px-4 py-3 text-sm text-zinc-500">
+                  <td className="px-4 py-3 text-sm text-muted-foreground">
                     {batch.executedAt
                       ? format(new Date(batch.executedAt), 'MMM d, yyyy')
                       : '—'}
@@ -126,7 +126,7 @@ export default async function BatchesPage({
                   <td className="px-4 py-3 text-right">
                     <Link
                       href={`/${slug}/batches/${batch.id}`}
-                      className="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+                      className="text-xs text-purple-600 hover:text-purple-700 font-medium"
                     >
                       View
                     </Link>

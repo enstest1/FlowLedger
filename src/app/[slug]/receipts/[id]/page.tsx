@@ -59,8 +59,8 @@ export default function ReceiptPage() {
   if (loading) {
     return (
       <div className="max-w-2xl">
-        <div className="bg-white rounded-xl border border-zinc-200 p-8 text-center">
-          <p className="text-zinc-400">Loading receipt...</p>
+        <div className="bg-card border border-border p-8 text-center">
+          <p className="text-muted-foreground/70">Loading receipt...</p>
         </div>
       </div>
     )
@@ -69,8 +69,8 @@ export default function ReceiptPage() {
   if (!receipt) {
     return (
       <div className="max-w-2xl">
-        <div className="bg-white rounded-xl border border-zinc-200 p-8 text-center">
-          <p className="text-zinc-400">Receipt not found</p>
+        <div className="bg-card border border-border p-8 text-center">
+          <p className="text-muted-foreground/70">Receipt not found</p>
         </div>
       </div>
     )
@@ -89,15 +89,15 @@ export default function ReceiptPage() {
       <div className="flex items-center gap-3">
         <Link
           href={`/${slug}/receipts`}
-          className="text-zinc-400 hover:text-zinc-700 transition-colors"
+          className="text-muted-foreground/70 hover:text-foreground transition-colors"
         >
           <ArrowLeft size={18} />
         </Link>
-        <h1 className="text-2xl font-bold text-zinc-900">Payment Receipt</h1>
+        <h1 className="text-xl font-semibold text-foreground">Payment Receipt</h1>
       </div>
 
       {/* Main receipt card */}
-      <div className="bg-white rounded-2xl border border-zinc-200 overflow-hidden">
+      <div className="bg-white rounded-2xl border border-border overflow-hidden">
         {/* Header */}
         <div className="bg-teal-600 px-6 py-6">
           <div className="flex items-center gap-2 mb-4">
@@ -135,35 +135,35 @@ export default function ReceiptPage() {
         <div className="p-6 space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs text-zinc-400 mb-1">FROM</p>
+              <p className="text-xs text-muted-foreground/70 mb-1">FROM</p>
               <p className="text-xs font-mono text-zinc-600 break-all">
                 {receipt.payerParty.split('::')[0]}::
                 {receipt.payerParty.split('::')[1]?.substring(0, 12)}...
               </p>
             </div>
             <div>
-              <p className="text-xs text-zinc-400 mb-1">TO</p>
+              <p className="text-xs text-muted-foreground/70 mb-1">TO</p>
               <p className="text-xs font-mono text-zinc-600 break-all">
                 {receipt.payeeParty.split('::')[0]}::
                 {receipt.payeeParty.split('::')[1]?.substring(0, 12)}...
               </p>
-              <p className="text-xs text-zinc-400 mt-0.5">
+              <p className="text-xs text-muted-foreground/70 mt-0.5">
                 {receipt.invoice.vendor.name}
               </p>
             </div>
           </div>
 
-          <div className="border-t border-zinc-100 pt-4">
+          <div className="border-t border-border pt-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-xs text-zinc-400 mb-0.5">Paid at</p>
-                <p className="text-sm font-medium text-zinc-900">
+                <p className="text-xs text-muted-foreground/70 mb-0.5">Paid at</p>
+                <p className="text-sm font-medium text-foreground">
                   {format(new Date(receipt.paidAt), 'MMMM d, yyyy h:mm a')}
                 </p>
               </div>
               <div>
-                <p className="text-xs text-zinc-400 mb-0.5">Network</p>
-                <p className="text-sm font-medium text-zinc-900">
+                <p className="text-xs text-muted-foreground/70 mb-0.5">Network</p>
+                <p className="text-sm font-medium text-foreground">
                   Canton {process.env.NEXT_PUBLIC_CANTON_NETWORK ?? 'devnet'}
                 </p>
               </div>
@@ -231,7 +231,7 @@ export default function ReceiptPage() {
       </div>
 
       <div className="text-center">
-        <p className="text-xs text-zinc-400">
+        <p className="text-xs text-muted-foreground/70">
           This receipt is cryptographically verified on the Canton Network
         </p>
       </div>

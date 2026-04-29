@@ -39,19 +39,19 @@ export default async function ApprovalsPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-zinc-900">Approvals</h1>
-        <p className="text-zinc-500 text-sm mt-0.5">
+        <h1 className="text-xl font-semibold text-foreground">Approvals</h1>
+        <p className="text-muted-foreground text-sm mt-0.5">
           {pendingInvoices.length} invoice{pendingInvoices.length !== 1 ? 's' : ''} pending approval
         </p>
       </div>
 
       {pendingInvoices.length === 0 ? (
-        <div className="bg-white rounded-xl border border-zinc-200 p-16 text-center">
+        <div className="bg-card border border-border p-16 text-center">
           <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <CheckSquare size={20} className="text-emerald-500" />
           </div>
-          <h3 className="font-semibold text-zinc-900 mb-2">All caught up!</h3>
-          <p className="text-sm text-zinc-500">
+          <h3 className="font-semibold text-foreground mb-2">All caught up!</h3>
+          <p className="text-sm text-muted-foreground">
             No invoices waiting for approval.
           </p>
         </div>
@@ -62,14 +62,14 @@ export default async function ApprovalsPage({
             return (
               <div
                 key={invoice.id}
-                className="bg-white rounded-xl border border-zinc-200 p-5"
+                className="bg-card border border-border p-5"
               >
                 <div className="flex items-start gap-4">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
                       <Link
                         href={`/${slug}/invoices/${invoice.id}`}
-                        className="text-base font-semibold text-zinc-900 hover:text-indigo-600 transition-colors"
+                        className="text-base font-semibold text-foreground hover:text-purple-600 transition-colors"
                       >
                         {invoice.invoiceNumber}
                       </Link>
@@ -81,26 +81,26 @@ export default async function ApprovalsPage({
                         </span>
                       )}
                     </div>
-                    <p className="text-sm text-zinc-500 mb-3">
+                    <p className="text-sm text-muted-foreground mb-3">
                       {invoice.description}
                     </p>
                     <div className="flex items-center gap-6 text-sm">
                       <div>
-                        <span className="text-zinc-400 text-xs">Vendor</span>
-                        <p className="font-medium text-zinc-900">
+                        <span className="text-muted-foreground/70 text-xs">Vendor</span>
+                        <p className="font-medium text-foreground">
                           {invoice.vendor.name}
                         </p>
                       </div>
                       <div>
-                        <span className="text-zinc-400 text-xs">Amount</span>
-                        <p className="font-bold text-zinc-900">
+                        <span className="text-muted-foreground/70 text-xs">Amount</span>
+                        <p className="font-semibold text-foreground">
                           {formatAmount(invoice.amount, invoice.assetId)}
                         </p>
                       </div>
                       <div>
-                        <span className="text-zinc-400 text-xs">Due</span>
+                        <span className="text-muted-foreground/70 text-xs">Due</span>
                         <p
-                          className={`font-medium ${isOverdue ? 'text-red-600' : 'text-zinc-900'}`}
+                          className={`font-medium ${isOverdue ? 'text-red-600' : 'text-foreground'}`}
                         >
                           {format(new Date(invoice.dueDate), 'MMM d, yyyy')}
                         </p>

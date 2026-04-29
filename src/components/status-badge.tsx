@@ -8,7 +8,7 @@ interface StatusBadgeProps {
 const statusLabels: Record<string, string> = {
   DRAFT: 'Draft',
   SUBMITTED: 'Submitted',
-  PENDING_APPROVAL: 'Pending Approval',
+  PENDING_APPROVAL: 'Pending',
   APPROVED: 'Approved',
   REJECTED: 'Rejected',
   IN_BATCH: 'In Batch',
@@ -30,7 +30,7 @@ export function StatusBadge({ status, className = '' }: StatusBadgeProps) {
   const label = statusLabels[status] ?? status
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${colorClass} ${className}`}
+      className={`inline-flex items-center px-1.5 py-0.5 text-[11px] font-medium uppercase tracking-wide ${colorClass} ${className}`}
     >
       {label}
     </span>
