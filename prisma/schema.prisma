@@ -1,0 +1,212 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String   @id @default(cuid())
+  email           String   @unique
+  name            String?
+  cantonPartyId   String?
+  cantonPublicKey String?
+  avatarUrl       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  memberships    OrganizationMember[]
+  approvals      InvoiceApproval[]
+  auditEvents    AuditEvent[]
+  vendorProfiles Vendor[]
+  accounts       Account[]
+  sessions       Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Organization {
+  id                  String   @id @default(cuid())
+  name                String
+  slug                String   @unique
+  logoUrl             String?
+  treasuryPartyId     String
+  defaultAsset        String   @default("USDCX")
+  approvalThreshold   Float    @default(1000)
+  requireDualApproval Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  members     OrganizationMember[]
+  vendors     Vendor[]
+  invoices    Invoice[]
+  batches     PayrollBatch[]
+  auditEvents AuditEvent[]
+}
+
+model OrganizationMember {
+  id             String   @id @default(cuid())
+  organizationId String
+  userId         String
+  role           String
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+
+  @@unique([organizationId, userId])
+}
+
+model Vendor {
+  id                String    @id @default(cuid())
+  organizationId    String
+  userId            String?
+  name              String
+  email             String
+  cantonPartyId     String
+  preferredAsset    String    @default("USDCX")
+  preApprovalStatus String    @default("PENDING")
+  preApprovalExpiry DateTime?
+  status            String    @default("ACTIVE")
+  notes             String?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  user         User?        @relation(fields: [userId], references: [id])
+  invoices     Invoice[]
+}
+
+model Invoice {
+  id               String    @id @default(cuid())
+  organizationId   String
+  vendorId         String
+  invoiceNumber    String
+  amount           Float
+  assetId          String
+  description      String
+  lineItems        String?
+  dueDate          DateTime
+  status           String    @default("DRAFT")
+  attachmentHash   String?
+  attachmentUrl    String?
+  cantonContractId String?
+  rejectionNote    String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  organization Organization      @relation(fields: [organizationId], references: [id])
+  vendor       Vendor            @relation(fields: [vendorId], references: [id])
+  approvals    InvoiceApproval[]
+  batchItems   BatchItem[]
+  receipt      PaymentReceipt?
+
+  @@unique([organizationId, invoiceNumber])
+}
+
+model InvoiceApproval {
+  id         String   @id @default(cuid())
+  invoiceId  String
+  approverId String
+  decision   String
+  note       String?
+  createdAt  DateTime @default(now())
+
+  invoice  Invoice @relation(fields: [invoiceId], references: [id])
+  approver User    @relation(fields: [approverId], references: [id])
+}
+
+model PayrollBatch {
+  id               String    @id @default(cuid())
+  organizationId   String
+  name             String
+  assetId          String
+  totalAmount      Float
+  itemCount        Int
+  status           String    @default("DRAFT")
+  cantonContractId String?
+  executedAt       DateTime?
+  failureReason    String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  items        BatchItem[]
+}
+
+model BatchItem {
+  id        String @id @default(cuid())
+  batchId   String
+  invoiceId String
+  amount    Float
+  status    String @default("PENDING")
+
+  batch   PayrollBatch @relation(fields: [batchId], references: [id])
+  invoice Invoice      @relation(fields: [invoiceId], references: [id])
+
+  @@unique([batchId, invoiceId])
+}
+
+model PaymentReceipt {
+  id                 String   @id @default(cuid())
+  invoiceId          String   @unique
+  batchId            String
+  payerParty         String
+  payeeParty         String
+  amount             Float
+  assetId            String
+  updateId           String
+  transferObjectJson String
+  paymentReference   String?
+  paidAt             DateTime @default(now())
+
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+}
+
+model AuditEvent {
+  id             String   @id @default(cuid())
+  organizationId String
+  actorId        String?
+  eventType      String
+  entityType     String
+  entityId       String
+  metadataJson   String
+  createdAt      DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  actor        User?        @relation(fields: [actorId], references: [id])
+}

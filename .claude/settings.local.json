@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.npmjs.com)",
+      "WebFetch(domain:docs.digitalasset.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:docs.dev.sync.global)",
+      "WebFetch(domain:www.canton.network)",
+      "WebFetch(domain:canton.foundation)",
+      "mcp__package-search__package_search_hybrid",
+      "WebFetch(domain:sync.global)",
+      "WebFetch(domain:intel.aikido.dev)",
+      "WebFetch(domain:www.launchnodes.com)",
+      "WebFetch(domain:forum.canton.network)",
+      "WebFetch(domain:www.halborn.com)"
+    ]
+  }
+}
