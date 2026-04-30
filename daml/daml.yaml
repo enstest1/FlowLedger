@@ -1,0 +1,12 @@
+sdk-version: 3.1.0
+name: flowledger
+version: 1.0.0
+source: .
+dependencies:
+  - daml-prim
+  - daml-stdlib
+  - splice-api-featured-app-v1
+  - splice-util-featured-app-proxies
+  - splice-amulet-token-standard
+build-options:
+  - --target=2.1

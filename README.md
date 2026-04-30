@@ -4,7 +4,7 @@
 
 Private invoice, approval, and payment workflow for Canton Network teams.
 
-FlowLedger is a B2B SaaS tool for Canton ecosystem teams — validators, node operators, app builders, dev shops, grant teams, and consultants. Create private invoices, route them through an approval workflow, settle payments in USDCx or CC on Canton Network, and generate cryptographically verifiable receipts backed by Canton proof-of-transfer.
+FlowLedger is a B2B SaaS tool for Canton ecosystem teams — validators, node operators, app builders, dev shops, grant teams, and consultants. Create private invoices, route them through an approval workflow, settle payments in USDCx or CC on Canton Network, generate cryptographically verifiable receipts backed by Canton proof-of-transfer, and earn CC rewards on every payment batch via the Canton Featured App program.
 
 ---
 
@@ -25,6 +25,8 @@ FlowLedger is a B2B SaaS tool for Canton ecosystem teams — validators, node op
 - [Stage 1 — LocalNet (Docker, no credentials)](#stage-1--localnet-docker-no-credentials)
 - [Stage 2 — DevNet (NaaS provider)](#stage-2--devnet-naas-provider)
 - [Stage 3 — MainNet](#stage-3--mainnet)
+- [Earning CC Rewards](#earning-cc-rewards)
+- [Startup Checks](#startup-checks)
 - [What Is Not Built Yet](#what-is-not-built-yet)
 - [Key Canton Resources](#key-canton-resources)
 
@@ -40,6 +42,7 @@ FlowLedger is a B2B SaaS tool for Canton ecosystem teams — validators, node op
 | **Payroll Batches** | Group approved invoices into a batch. Pre-flight check validates treasury balance and vendor pre-approvals before execution. |
 | **Payments** | Batch execution sends individual CIP-0056 token transfers per vendor. Partial batch support — one failure does not block the rest. |
 | **Receipts** | Every payment generates a receipt with Canton UpdateID (cryptographic proof-of-transfer), payer/payee party IDs, and full TransferObject JSON. |
+| **Rewards** | Earn CC rewards on every payment batch via FeaturedAppActivityMarker integration. Rewards dashboard shows coupon count, wallet proxy status, and projected earnings. |
 | **CSV Export** | Export invoices and receipts with Canton UpdateIDs for accounting. |
 | **Audit Trail** | Every action logged with actor, timestamp, and entity. |
 | **Team Roles** | ADMIN, TREASURY, APPROVER, ACCOUNTANT — each with scoped permissions. |
@@ -57,6 +60,17 @@ Canton SDK   @canton-network/dapp-sdk (browser), jose (JWT signing)
 Validation   Zod
 Exports      csv-writer
 Charts       Recharts (dashboard only)
+
+Canton Reward Layer:
+  WalletProxyManager   Wraps WalletUserProxy from splice-util-featured-app-proxies
+                       Ensures every payment creates a FeaturedAppActivityMarker
+  RewardTracker        Reads CC reward state from Canton validator + Scan API
+                       Provides coupon counts, minting status, traffic balance,
+                       and projected monthly CC earnings
+  MainNetCantonAdapter Extends DevNetCantonAdapter with reward earning path —
+                       tries proxied transfer first, falls back to direct transfer
+  StartupChecks        5-point boot check: featured app status, wallet proxy template,
+                       treasury balance, traffic balance, pre-approval status
 ```
 
 ---
@@ -74,14 +88,15 @@ src/
 │   │   ├── batches/               # Batch list, 3-step create wizard, execute
 │   │   ├── receipts/              # Receipt list, receipt detail with Canton proof
 │   │   ├── exports/               # CSV export with filters
+│   │   ├── rewards/               # CC rewards dashboard (ADMIN + TREASURY only)
 │   │   └── settings/              # Payment config, team members + invite
 │   ├── actions/                   # All server-side mutations
-│   │   ├── batch.ts               # createBatch, executeBatch (main payment loop)
+│   │   ├── batch.ts               # createBatch, executeBatch (main payment loop + reward tracking)
 │   │   ├── export.ts              # exportInvoicesCSV, exportReceiptsCSV
 │   │   ├── invoice.ts             # createInvoice, approveInvoice, rejectInvoice
 │   │   ├── org.ts                 # createOrg, updateOrgSettings, inviteMember
 │   │   ├── user.ts                # linkCantonWallet, updateUserProfile
-│   │   └── vendor.ts              # createVendor, updateVendor, renewPreApproval
+│   │   └── vendor.ts              # createVendor (+ WalletProxy setup), updateVendor, renewPreApproval
 │   ├── api/
 │   │   ├── auth/canton-wallet/    # POST: Canton wallet sign-in
 │   │   ├── dev/signin/            # GET: dev-only instant login (no email needed)
@@ -93,13 +108,17 @@ src/
 │   ├── canton-wallet-connect.tsx  # Wallet connect button + manual party ID fallback
 │   ├── party-id.tsx               # Truncated party ID display with copy button
 │   ├── status-badge.tsx           # Colored status badges for all entity states
-│   └── layout/                    # Sidebar, topbar
+│   └── layout/                    # Sidebar (with Rewards link), topbar
 └── lib/
     ├── auth.ts                    # NextAuth config
     ├── canton/
     │   ├── types.ts               # CantonAdapter interface — all method signatures
     │   ├── mock-adapter.ts        # Mock implementation (no validator, default for dev)
     │   ├── devnet-adapter.ts      # Real Splice Validator App HTTP API implementation
+    │   ├── mainnet-adapter.ts     # MainNet adapter — proxied transfers + reward earning
+    │   ├── wallet-proxy.ts        # WalletProxyManager — WalletUserProxy setup + proxied transfers
+    │   ├── reward-tracker.ts      # RewardTracker — coupons, minting status, traffic, estimates
+    │   ├── startup-check.ts       # 5-point boot check for Canton integration health
     │   ├── canton-auth.ts         # Token acquisition: self-signed or OAuth2
     │   ├── wallet-client.ts       # Client-side CIP-103 wallet detection + connect
     │   └── index.ts               # Adapter factory (picks based on CANTON_NETWORK_ENV)
@@ -107,8 +126,13 @@ src/
     ├── prisma.ts                  # Prisma singleton
     └── utils.ts                   # cn(), truncatePartyId(), formatAmount(), etc.
 prisma/
-├── schema.prisma                  # Full DB schema (12 models)
+├── schema.prisma                  # Full DB schema (13 models incl. RewardSummary)
 └── seed.ts                        # Demo data: 5 vendors, 8 invoices, 1 paid batch
+daml/
+├── daml.yaml                      # Daml SDK config — splice-api-featured-app-v1,
+│                                  # splice-util-featured-app-proxies dependencies
+└── FeaturedApp.daml               # FlowLedgerAppProvider template — RecordPaymentActivity
+                                   # and RecordBatchSettlement choices for CC reward earning
 ```
 
 ---
@@ -259,7 +283,7 @@ Example: `alice-chen::1a2b3c4d5e6f7890abcdef...`
 | `NEXTAUTH_URL` | App base URL | All |
 | `EMAIL_SERVER_*` | SMTP config | Email magic links |
 | `EMAIL_FROM` | Sender address | Email magic links |
-| `CANTON_NETWORK_ENV` | `mock` / `localnet` / `devnet` / `mainnet` | Selects adapter |
+| `CANTON_NETWORK_ENV` | `mock` / `localnet` / `devnet` / `testnet` / `mainnet` | Selects adapter |
 | `CANTON_VALIDATOR_URL` | Validator App HTTP API base URL | LocalNet + |
 | `CANTON_LEDGER_URL` | Ledger API v2 base URL | LocalNet + |
 | `CANTON_AUTH_MODE` | `self-signed` (LocalNet) or `client-credentials` (DevNet+) | LocalNet + |
@@ -270,6 +294,19 @@ Example: `alice-chen::1a2b3c4d5e6f7890abcdef...`
 | `CANTON_AUTH_AUDIENCE` | JWT audience | LocalNet + |
 | `CANTON_PARTY_ID` | Your treasury internal party ID | LocalNet + |
 | `CANTON_AMULET_PACKAGE_ID` | Amulet package ID on the network | DevNet + |
+| `CANTON_APP_PROVIDER_PARTY` | Your FlowLedger provider party ID (after Featured App approval) | MainNet rewards |
+| `CANTON_FEATURED_APP_RIGHT_CONTRACT_ID` | FeaturedAppRight contract ID (after approval) | MainNet rewards |
+| `CANTON_DSO_PARTY` | Canton Network DSO party (from NaaS provider) | Daml contracts |
+| `CANTON_SCAN_URL` | Public Scan API URL for network stats | Reward estimates |
+| `CANTON_WALLET_PROXY_TEMPLATE_ID` | WalletUserProxy template ID from NaaS provider | Proxied transfers |
+| `CANTON_TESTNET_LEDGER_URL` | TestNet ledger URL | TestNet |
+| `CANTON_TESTNET_REGISTRY_URL` | TestNet registry URL | TestNet |
+| `CANTON_TESTNET_AUTH_CLIENT_ID` | TestNet OAuth2 client ID | TestNet |
+| `CANTON_TESTNET_AUTH_CLIENT_SECRET` | TestNet OAuth2 client secret | TestNet |
+| `CANTON_MAINNET_LEDGER_URL` | MainNet ledger URL | MainNet |
+| `CANTON_MAINNET_REGISTRY_URL` | MainNet registry URL | MainNet |
+| `CANTON_MAINNET_AUTH_CLIENT_ID` | MainNet OAuth2 client ID | MainNet |
+| `CANTON_MAINNET_AUTH_CLIENT_SECRET` | MainNet OAuth2 client secret | MainNet |
 
 **For mock dev:** only `DATABASE_URL` and `NEXTAUTH_SECRET` are needed. `CANTON_NETWORK_ENV=mock` is the default.
 
@@ -294,12 +331,14 @@ Carol White's pre-approval is intentionally expired to demonstrate the pre-fligh
 
 | Role | Capabilities |
 |---|---|
-| **ADMIN** | Full access — org settings, member management, all operations |
-| **TREASURY** | Create/execute batches, manage vendors, create invoices, export |
+| **ADMIN** | Full access — org settings, member management, all operations, rewards dashboard |
+| **TREASURY** | Create/execute batches, manage vendors, create invoices, export, rewards dashboard |
 | **APPROVER** | View vendors and invoices, approve or reject the queue |
 | **ACCOUNTANT** | Read-only — invoices, batches, receipts, CSV export |
 
 Permissions enforced server-side in every server action and API route.
+
+The **Rewards** page (`/[slug]/rewards`) is restricted to ADMIN and TREASURY roles.
 
 ---
 
@@ -309,6 +348,7 @@ Permissions enforced server-side in every server action and API route.
 1. SETUP
    Admin creates org → gets treasury Canton party ID (from NaaS provider or LocalNet)
    Treasury adds vendors → Canton pre-approval set per vendor (~$1/90 days in CC)
+   On MainNet: WalletUserProxy created per vendor for reward-earning proxied transfers
 
 2. INVOICE
    Vendor (or treasury on their behalf) creates invoice
@@ -328,13 +368,21 @@ Permissions enforced server-side in every server action and API route.
 5. EXECUTE
    Treasury confirms → for each invoice in batch:
      Select UTXOs explicitly from treasury
-     Execute CIP-0056 token transfer with FeaturedAppActivityMarker
+     Execute CIP-0056 token transfer via WalletUserProxy (MainNet) or direct (DevNet)
+     FeaturedAppActivityMarker created on-chain → earns CC rewards
      Store UpdateID + TransferObject JSON → create PaymentReceipt
+     Store activityMarkerContractId on receipt (MainNet)
    Batch → PAID (or PARTIAL if any failed)
+   Batch-level reward summary fetched and stored (non-blocking)
 
 6. RECEIPT
    Receipt shows Canton UpdateID, party IDs, full TransferObject JSON
+   On MainNet: also shows activityMarkerContractId (proof of reward marker)
    Shareable read-only link · PDF export
+
+7. REWARDS
+   /rewards dashboard shows: estimated CC this round, activity marker count,
+   active wallet proxies, featured app status, reward history, network stats
 ```
 
 ---
@@ -353,6 +401,7 @@ Vendor party    →  EXTERNAL party
                    Vendor holds their own private key in their Canton wallet
                    FlowLedger registers their party ID on your validator
                    Pre-approval → vendor auto-receives payments (1-step transfer)
+                   WalletUserProxy → transfers routed through provider for reward earning
                    Vendor keeps full self-custody of all funds
 ```
 
@@ -365,9 +414,10 @@ All blockchain calls go through the `CantonAdapter` interface. The factory in `s
 | `mock` (default) | `MockCantonAdapter` | Returns simulated data, no validator needed |
 | `localnet` | `DevNetCantonAdapter` | Calls LocalNet (cn-quickstart on your machine) |
 | `devnet` | `DevNetCantonAdapter` | Calls NaaS-hosted DevNet validator |
-| `mainnet` | `DevNetCantonAdapter` | Calls NaaS-hosted MainNet validator |
+| `testnet` | `DevNetCantonAdapter` | Calls NaaS-hosted TestNet validator |
+| `mainnet` | `MainNetCantonAdapter` | Calls NaaS-hosted MainNet validator with reward earning |
 
-The same `DevNetCantonAdapter` handles all three real environments — only the URLs and credentials differ.
+`MainNetCantonAdapter` extends the DevNet behaviour with proxied transfers for reward marker creation. The `tapDevNet` faucet method is only on `DevNetCantonAdapter` — it does not exist on MainNet.
 
 ### Token Authentication
 
@@ -557,13 +607,16 @@ Same as LocalNet — check `<CANTON_VALIDATOR_URL>/docs/openapi` and update path
 
 ## Stage 3 — MainNet
 
-Once DevNet testing is done, moving to MainNet is an `.env` change — no code changes required.
+Once DevNet testing is done, moving to MainNet requires an `.env` update and setting `CANTON_NETWORK_ENV=mainnet`. This selects `MainNetCantonAdapter`, which adds reward earning on top of the core payment flow.
 
 ### What is different on MainNet vs DevNet
 
 - Real money (real USDCx, real CC)
-- No faucet (`tapDevNet` is disabled)
-- Featured app approval required for full CC reward weighting
+- No faucet (`tapDevNet` is not available — the method does not exist on `MainNetCantonAdapter`)
+- `MainNetCantonAdapter` is used instead of `DevNetCantonAdapter`
+- Proxied transfers via `WalletProxyManager` earn CC rewards per transfer
+- Featured App approval required for full CC reward weighting
+- Startup checks run automatically on boot
 - Your NaaS provider gives you a separate set of MainNet credentials
 
 ### Steps
@@ -581,12 +634,15 @@ CANTON_LEDGER_URL="<mainnet ledger url>"
 CANTON_AUTH_TOKEN_URL="<mainnet oauth2 token url>"
 CANTON_AUTH_CLIENT_ID="<mainnet client id>"
 CANTON_AUTH_CLIENT_SECRET="<mainnet client secret>"
+CANTON_APP_PROVIDER_PARTY="<your provider party id>"
+CANTON_SCAN_URL="<scan api url from provider>"
+CANTON_WALLET_PROXY_TEMPLATE_ID="<from provider>"
 NEXT_PUBLIC_CANTON_NETWORK="mainnet"
 ```
 
 **3. Apply for Featured App status**
 
-Every payroll batch in FlowLedger is tagged with `FeaturedAppActivityMarker`. To earn CC rewards from this, you need Featured App approval from the Canton Foundation.
+Every payment transfer in FlowLedger emits a `FeaturedAppActivityMarker` on-chain. To earn CC rewards from these markers, you need Featured App approval from the Canton Foundation.
 
 Apply at [canton.foundation/featured-app-request](https://canton.foundation/featured-app-request/) within 2 weeks of your production launch. The application asks for:
 
@@ -599,6 +655,8 @@ Apply at [canton.foundation/featured-app-request](https://canton.foundation/feat
 
 Process: submit form → 5-minute presentation to Tokenomics Committee → Committee vote → on-chain governance vote (~2 weeks total).
 
+Once approved, set `CANTON_FEATURED_APP_RIGHT_CONTRACT_ID` to the contract ID you receive. The startup check on the next boot will confirm it.
+
 From January 2026, **62% of total network rewards** (~516 million CC/month) are distributed to featured apps proportionally based on transaction activity.
 
 **4. Production deployment checklist**
@@ -610,10 +668,123 @@ From January 2026, **62% of total network rewards** (~516 million CC/month) are 
 - [ ] Email provider configured and tested
 - [ ] `NODE_ENV=production` set (disables `/api/dev/signin` automatically)
 - [ ] Canton MainNet credentials in environment
-- [ ] Featured App approval obtained
+- [ ] `CANTON_APP_PROVIDER_PARTY` set
+- [ ] `CANTON_FEATURED_APP_RIGHT_CONTRACT_ID` set (after approval)
+- [ ] `CANTON_WALLET_PROXY_TEMPLATE_ID` set (from NaaS provider)
+- [ ] Startup checks pass on first boot (check logs)
 - [ ] Pre-approval expiry monitoring in place (vendor pre-approvals expire every 90 days)
 - [ ] Treasury CC traffic balance monitored (CC is consumed per on-chain operation)
 - [ ] Team trained on vendor pre-approval renewal process
+
+---
+
+## Earning CC Rewards
+
+FlowLedger is a Canton featured app. Every payment batch execution earns CC (Amulet) rewards for the FlowLedger provider party, which can be reinvested into treasury operations or shared with org members.
+
+### How It Works
+
+Canton Network distributes 62% of total minted CC each month (~516M CC/month from January 2026) to featured app developers, proportional to their share of total network transaction activity. The mechanism:
+
+1. Each payment transfer is submitted through a `WalletUserProxy` contract
+2. The proxy automatically creates a `FeaturedAppActivityMarker` on-chain
+3. The Canton DSO counts markers each consensus round (~10 minutes)
+4. CC rewards mint into the provider party's wallet each round
+5. The validator's reward automation redeems `AppRewardCoupon` contracts automatically
+
+### What Earns Rewards
+
+| Action | Earns Reward |
+|---|---|
+| Payment batch execution → per-vendor transfer via WalletUserProxy | YES — one FeaturedAppActivityMarker per transfer |
+| Batch settlement → FlowLedgerAppProvider.RecordBatchSettlement (Daml) | YES — one marker per batch (belt-and-suspenders) |
+| Invoice creation | No — intermediate step only |
+| Invoice approval | No — intermediate step only |
+| Pre-approval setup | No — administrative operation |
+| Vendor registration | No — administrative operation |
+
+### What Does NOT Earn Rewards
+
+Only actual asset transfers earn markers. Workflow steps — creating invoices, approving them, setting pre-approvals, updating statuses — do not create markers and do not consume reward budget.
+
+This is by design: the Canton tokenomics reward apps that drive real economic activity (token transfers) on the network.
+
+### Getting Featured App Status
+
+Without a `FeaturedAppRight` contract, FlowLedger still creates `FeaturedAppActivityMarker` contracts on-chain, but they do NOT earn CC rewards. The Featured App approval is what activates reward earning.
+
+Steps:
+1. Launch on MainNet
+2. Within 2 weeks, submit the application at [canton.foundation/featured-app-request](https://canton.foundation/featured-app-request/)
+3. 5-minute presentation to the Canton Tokenomics Committee
+4. Committee vote + on-chain governance vote (~2 weeks total)
+5. Receive `FeaturedAppRight` contract ID
+6. Set `CANTON_FEATURED_APP_RIGHT_CONTRACT_ID` in your environment
+7. Restart the app — startup check confirms the contract
+
+### Reward Calculation
+
+```
+projected_monthly_CC =
+  (app_txns_per_month / (network_tps × 60 × 60 × 24 × 30))
+  × 516,000,000 CC
+
+USD_value = projected_monthly_CC × current_CC_rate
+```
+
+- Monitor live CC/USD rate at [canton.thetie.io](https://canton.thetie.io)
+- The `/rewards` dashboard shows real-time estimates based on actual network TPS from the Scan API
+- A conservative USD placeholder of 0.004 USD/CC is used when the Scan API is unreachable
+
+### Switching to MainNet: Reward Readiness Checklist
+
+- [ ] `CANTON_NETWORK_ENV=mainnet` — activates `MainNetCantonAdapter`
+- [ ] `CANTON_APP_PROVIDER_PARTY` set — the party that receives rewards
+- [ ] `CANTON_WALLET_PROXY_TEMPLATE_ID` set — enables proxied transfers
+- [ ] `CANTON_SCAN_URL` set — enables network TPS-based reward estimates
+- [ ] Featured App application submitted (within 2 weeks of launch)
+- [ ] `CANTON_FEATURED_APP_RIGHT_CONTRACT_ID` set after approval — activates reward earning
+
+### Current Reward Status
+
+Reward status is checked on every boot when `CANTON_NETWORK_ENV=mainnet`. Check your server logs for `[Startup]` lines. If `CANTON_FEATURED_APP_RIGHT_CONTRACT_ID` is not set, you will see:
+
+```
+[Startup] WARNING: No FeaturedAppRight contract found for party <party>.
+Activity markers will be created but rewards will not be earned until
+featured app status is approved at canton.foundation/featured-app-request
+```
+
+The `/rewards` dashboard also shows the Featured App Status card — amber (PENDING) until the contract ID is set, green (ACTIVE) once it is.
+
+---
+
+## Startup Checks
+
+When `CANTON_NETWORK_ENV` is `mainnet`, `testnet`, `devnet`, or `localnet`, FlowLedger logs five startup checks on boot. All checks are advisory — a failed check logs a warning but never prevents the app from starting.
+
+| Check | What it verifies | Warning threshold |
+|---|---|---|
+| **Featured App Status** | `FeaturedAppRight` contract exists on the validator | No contract found |
+| **Wallet Proxy Template** | `WalletUserProxy` template available on-chain | Template not found |
+| **Treasury Balance** | Treasury USDCX and CC balances | USDCX < 100 or CC < 50 |
+| **Traffic Balance** | CC traffic budget remaining | < 10 MB remaining |
+| **Pre-approval Status** | Vendor pre-approval counts (active / expiring / expired) | Any expired or expiring within 14 days |
+
+Example output on a healthy MainNet boot:
+
+```
+[Startup] Running Canton startup checks...
+[Startup] Featured App Status: ACTIVE
+[Startup] WalletUserProxy template: AVAILABLE
+[Startup] Treasury Balance: USDCX 5420.00, CC 284.0021
+[Startup] Traffic Balance: 45.20MB remaining
+[Startup] Pre-approval Status: 12 active, 1 expiring within 14 days, 0 expired
+[Startup] Startup checks complete: 4 OK, 1 WARN, 0 SKIP
+[Startup] Review warnings above before processing live payments.
+```
+
+If `CANTON_NETWORK_ENV=mock`, checks are skipped (`SKIP` status) since there is no validator to query.
 
 ---
 
@@ -631,6 +802,7 @@ Intentionally out of scope for v1:
 | **PDF receipt export** | Download PDF button present; browser print → PDF works as a workaround |
 | **Shareable receipt links** | Read-only public receipt URL not implemented |
 | **Real-time batch progress** | Uses `router.refresh()` polling — upgrade to SSE for live updates |
+| **RewardSummary population** | `RewardSummary` model exists but is not yet populated automatically — needs a cron job or batch-end hook |
 | **Recurring payment schedules** | v2 |
 | **Payroll tax engine** | v2 |
 | **KYC / AML** | v2 |
@@ -650,6 +822,7 @@ Intentionally out of scope for v1:
 | CIP-0056 — token standard | github.com/canton-foundation/cips |
 | NaaS provider list | canton.foundation/validators |
 | Featured App application | canton.foundation/featured-app-request |
+| CC live rate tracker | canton.thetie.io |
 | Canton forum | forum.canton.network |
 | Digital Asset license | digitalasset.com |
 

@@ -192,6 +192,33 @@ export async function executeBatch(batchId: string) {
           },
         })
 
+        // Reward tracking — extract activityMarkerContractId from transfer object (non-blocking)
+        try {
+          const transferData = JSON.parse(transfer.transferObjectJson) as {
+            activityMarkerContractId?: string
+          }
+          if (transferData.activityMarkerContractId) {
+            await prisma.paymentReceipt.update({
+              where: { invoiceId: item.invoiceId },
+              data: { activityMarkerContractId: transferData.activityMarkerContractId },
+            })
+            await prisma.auditEvent.create({
+              data: {
+                organizationId: org.id,
+                actorId: session.user.id,
+                eventType: 'ACTIVITY_MARKER_CREATED',
+                entityType: 'receipt',
+                entityId: item.invoiceId,
+                metadataJson: JSON.stringify({
+                  activityMarkerContractId: transferData.activityMarkerContractId,
+                }),
+              },
+            })
+          }
+        } catch (err) {
+          console.warn('[Batch] Reward tracking failed (non-blocking):', err)
+        }
+
         // Mark item as PAID
         await prisma.batchItem.update({
           where: { id: item.id },
@@ -230,6 +257,24 @@ export async function executeBatch(batchId: string) {
         executedAt: new Date(),
       },
     })
+
+    // Batch-level reward summary (non-blocking)
+    try {
+      const { RewardTracker } = await import('@/lib/canton/reward-tracker')
+      const rewardTracker = new RewardTracker()
+      const coupons = await rewardTracker.getAppRewardCoupons()
+      if (coupons.estimatedCCValue > 0) {
+        await prisma.payrollBatch.update({
+          where: { id: batchId },
+          data: { totalRewardEstimateCC: coupons.estimatedCCValue },
+        })
+      }
+      console.log(
+        `[Batch] Reward summary: ${coupons.count} coupons, ~${coupons.estimatedCCValue} CC estimated`
+      )
+    } catch (err) {
+      console.warn('[Batch] Batch reward summary failed (non-blocking):', err)
+    }
 
     await prisma.auditEvent.create({
       data: {

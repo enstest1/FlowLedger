@@ -71,11 +71,12 @@ model Organization {
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
-  members     OrganizationMember[]
-  vendors     Vendor[]
-  invoices    Invoice[]
-  batches     PayrollBatch[]
-  auditEvents AuditEvent[]
+  members         OrganizationMember[]
+  vendors         Vendor[]
+  invoices        Invoice[]
+  batches         PayrollBatch[]
+  auditEvents     AuditEvent[]
+  rewardSummaries RewardSummary[]
 }
 
 model OrganizationMember {
@@ -92,19 +93,22 @@ model OrganizationMember {
 }
 
 model Vendor {
-  id                String    @id @default(cuid())
-  organizationId    String
-  userId            String?
-  name              String
-  email             String
-  cantonPartyId     String
-  preferredAsset    String    @default("USDCX")
-  preApprovalStatus String    @default("PENDING")
-  preApprovalExpiry DateTime?
-  status            String    @default("ACTIVE")
-  notes             String?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  id                    String    @id @default(cuid())
+  organizationId        String
+  userId                String?
+  name                  String
+  email                 String
+  cantonPartyId         String
+  preferredAsset        String    @default("USDCX")
+  preApprovalStatus     String    @default("PENDING")
+  preApprovalExpiry     DateTime?
+  status                String    @default("ACTIVE")
+  notes                 String?
+  walletProxyContractId String?
+  walletProxyStatus     String?   @default("PENDING")
+  walletProxyCreatedAt  DateTime?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id])
   user         User?        @relation(fields: [userId], references: [id])
@@ -112,7 +116,7 @@ model Vendor {
 }
 
 model Invoice {
-  id               String    @id @default(cuid())
+  id               String   @id @default(cuid())
   organizationId   String
   vendorId         String
   invoiceNumber    String
@@ -121,13 +125,13 @@ model Invoice {
   description      String
   lineItems        String?
   dueDate          DateTime
-  status           String    @default("DRAFT")
+  status           String   @default("DRAFT")
   attachmentHash   String?
   attachmentUrl    String?
   cantonContractId String?
   rejectionNote    String?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   organization Organization      @relation(fields: [organizationId], references: [id])
   vendor       Vendor            @relation(fields: [vendorId], references: [id])
@@ -151,18 +155,20 @@ model InvoiceApproval {
 }
 
 model PayrollBatch {
-  id               String    @id @default(cuid())
-  organizationId   String
-  name             String
-  assetId          String
-  totalAmount      Float
-  itemCount        Int
-  status           String    @default("DRAFT")
-  cantonContractId String?
-  executedAt       DateTime?
-  failureReason    String?
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
+  id                       String    @id @default(cuid())
+  organizationId           String
+  name                     String
+  assetId                  String
+  totalAmount              Float
+  itemCount                Int
+  status                   String    @default("DRAFT")
+  cantonContractId         String?
+  activityMarkerContractId String?
+  totalRewardEstimateCC    Float?
+  executedAt               DateTime?
+  failureReason            String?
+  createdAt                DateTime  @default(now())
+  updatedAt                DateTime  @updatedAt
 
   organization Organization @relation(fields: [organizationId], references: [id])
   items        BatchItem[]
@@ -182,17 +188,20 @@ model BatchItem {
 }
 
 model PaymentReceipt {
-  id                 String   @id @default(cuid())
-  invoiceId          String   @unique
-  batchId            String
-  payerParty         String
-  payeeParty         String
-  amount             Float
-  assetId            String
-  updateId           String
-  transferObjectJson String
-  paymentReference   String?
-  paidAt             DateTime @default(now())
+  id                       String   @id @default(cuid())
+  invoiceId                String   @unique
+  batchId                  String
+  payerParty               String
+  payeeParty               String
+  amount                   Float
+  assetId                  String
+  updateId                 String
+  transferObjectJson       String
+  paymentReference         String?
+  activityMarkerContractId String?
+  appRewardCouponId        String?
+  rewardEstimateCC         Float?
+  paidAt                   DateTime @default(now())
 
   invoice Invoice @relation(fields: [invoiceId], references: [id])
 }
@@ -209,4 +218,18 @@ model AuditEvent {
 
   organization Organization @relation(fields: [organizationId], references: [id])
   actor        User?        @relation(fields: [actorId], references: [id])
+}
+
+model RewardSummary {
+  id                 String   @id @default(cuid())
+  organizationId     String
+  periodStart        DateTime
+  periodEnd          DateTime
+  totalTransactions  Int
+  totalRewardCoupons Int
+  estimatedCCEarned  Float
+  estimatedUSDValue  Float
+  createdAt          DateTime @default(now())
+
+  organization Organization @relation(fields: [organizationId], references: [id])
 }

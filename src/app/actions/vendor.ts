@@ -37,9 +37,27 @@ export async function createVendor(orgId: string, data: unknown) {
   try {
     const adapter = getCantonAdapter()
 
-    // Register party and set pre-approval
+    // Step 1 — Register party on the validator
     await adapter.registerExternalParty({ partyId: cantonPartyId, hint: name })
+
+    // Step 2 — Set TransferPreApproval so vendor auto-receives payments
     const preApproval = await adapter.setTransferPreApproval(cantonPartyId)
+
+    // Step 3 — Setup WalletUserProxy (MainNet reward earning)
+    // Non-blocking: if this fails, vendor creation still succeeds.
+    let walletProxyContractId: string | undefined
+    let walletProxyStatus = 'PENDING'
+    try {
+      const { WalletProxyManager } = await import('@/lib/canton/wallet-proxy')
+      const proxyManager = new WalletProxyManager()
+      const contractId = await proxyManager.setupWalletProxy(cantonPartyId)
+      walletProxyContractId = contractId || undefined
+      if (walletProxyContractId) {
+        walletProxyStatus = 'ACTIVE'
+      }
+    } catch (err) {
+      console.warn('[Vendor] WalletProxy setup failed (non-blocking):', err)
+    }
 
     const vendor = await prisma.vendor.create({
       data: {
@@ -52,6 +70,13 @@ export async function createVendor(orgId: string, data: unknown) {
         preApprovalExpiry: preApproval.expiresAt,
         status: 'ACTIVE',
         notes,
+        ...(walletProxyContractId
+          ? {
+              walletProxyContractId,
+              walletProxyStatus,
+              walletProxyCreatedAt: new Date(),
+            }
+          : {}),
       },
     })
 
@@ -65,6 +90,23 @@ export async function createVendor(orgId: string, data: unknown) {
         metadataJson: JSON.stringify({ name, email, cantonPartyId }),
       },
     })
+
+    // Audit event for WalletProxy creation (only if proxy was set up)
+    if (walletProxyStatus === 'ACTIVE' && walletProxyContractId) {
+      await prisma.auditEvent.create({
+        data: {
+          organizationId: orgId,
+          actorId: session.user.id,
+          eventType: 'WALLET_PROXY_CREATED',
+          entityType: 'vendor',
+          entityId: vendor.id,
+          metadataJson: JSON.stringify({
+            cantonPartyId,
+            walletProxyContractId,
+          }),
+        },
+      })
+    }
 
     const org = await prisma.organization.findUnique({ where: { id: orgId } })
     revalidatePath(`/${org?.slug}/vendors`)

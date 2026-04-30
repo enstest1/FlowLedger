@@ -1,0 +1,49 @@
+module FeaturedApp where
+
+import Splice.Api.FeaturedAppRightV1
+import Splice.Util.FeaturedAppProxies
+
+-- FlowLedgerAppProvider: the on-chain contract that holds the provider's
+-- right to emit FeaturedAppActivityMarkers for reward earning.
+-- Deploy one instance per FlowLedger production environment.
+template FlowLedgerAppProvider
+  with
+    provider : Party  -- FlowLedger app provider party (registered with GSF)
+    dso : Party       -- Canton Network DSO party
+  where
+    signatory provider
+    observer dso
+
+    -- RecordPaymentActivity: called after each successful payment transfer.
+    -- Creates a FeaturedAppActivityMarker — the unit that earns CC rewards.
+    -- Only call this for actual asset transfers, not intermediate workflow steps.
+    choice RecordPaymentActivity : ContractId FeaturedAppActivityMarker
+      with
+        invoiceId : Text
+        batchId   : Text
+        amount    : Decimal
+        assetId   : Text
+        featuredAppRight : ContractId FeaturedAppRight
+      controller provider
+      do
+        exercise featuredAppRight FeaturedAppRight_CreateActivityMarker with
+          description = "FlowLedger payment: invoice " <> invoiceId <>
+                        " batch " <> batchId <>
+                        " amount " <> show amount <> " " <> assetId
+          provider    = provider
+
+    -- RecordBatchSettlement: batch-level marker, called once after all transfers
+    -- in a batch complete. Belt-and-suspenders approach alongside per-payment markers.
+    choice RecordBatchSettlement : ContractId FeaturedAppActivityMarker
+      with
+        batchId      : Text
+        invoiceCount : Int
+        totalAmount  : Decimal
+        featuredAppRight : ContractId FeaturedAppRight
+      controller provider
+      do
+        exercise featuredAppRight FeaturedAppRight_CreateActivityMarker with
+          description = "FlowLedger batch settlement: " <> batchId <>
+                        " (" <> show invoiceCount <> " invoices, " <>
+                        show totalAmount <> " total)"
+          provider    = provider

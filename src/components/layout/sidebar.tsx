@@ -10,6 +10,7 @@ import {
   Receipt,
   Download,
   Settings,
+  TrendingUp,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { GlobeLoader } from '@/components/globe-loader'
@@ -35,6 +36,9 @@ export function Sidebar({ slug, orgName, role }: SidebarProps) {
     { href: `${base}/batches`, label: 'Payroll Batches', icon: Package },
     { href: `${base}/receipts`, label: 'Receipts', icon: Receipt },
     { href: `${base}/exports`, label: 'Exports', icon: Download },
+    ...(role === 'ADMIN' || role === 'TREASURY'
+      ? [{ href: `${base}/rewards`, label: 'Rewards', icon: TrendingUp }]
+      : []),
     { href: `${base}/settings`, label: 'Settings', icon: Settings },
   ]
 
