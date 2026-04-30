@@ -2,17 +2,30 @@
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { Mail, Loader2 } from 'lucide-react'
-import Link from 'next/link'
 import { CantonWalletConnect } from '@/components/canton-wallet-connect'
+import { IntroAnimation } from '@/components/intro/intro-animation'
 
 type Tab = 'email' | 'wallet'
 
 export default function SignInPage() {
-  const [tab, setTab] = useState<Tab>('wallet')
-  const [email, setEmail] = useState('')
+  // Intro state — plays on every page load/refresh
+  const [introMounted, setIntroMounted] = useState(true)
+  const [formVisible,  setFormVisible]  = useState(false)
+
+  // Sign-in form state
+  const [tab,     setTab]     = useState<Tab>('wallet')
+  const [email,   setEmail]   = useState('')
   const [loading, setLoading] = useState(false)
-  const [sent, setSent] = useState(false)
-  const [error, setError] = useState('')
+  const [sent,    setSent]    = useState(false)
+  const [error,   setError]   = useState('')
+
+  // Called when intro animation finishes (or skip pressed)
+  // The IntroAnimation already fades to white; here we reveal the form
+  const handleIntroDone = () => {
+    setFormVisible(true)
+    // Small delay lets the form CSS transition start before the overlay unmounts
+    setTimeout(() => setIntroMounted(false), 50)
+  }
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -34,8 +47,13 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex items-center justify-center px-4">
-      <div className="w-full max-w-sm">
+    <div className="min-h-screen bg-[#fafaf9] flex items-center justify-center px-4">
+
+      {/* Sign-in card — rendered from the start, fades in when intro finishes */}
+      <div
+        className="w-full max-w-sm transition-all duration-700"
+        style={{ opacity: formVisible ? 1 : 0, transform: formVisible ? 'translateY(0)' : 'translateY(10px)' }}
+      >
         <div className="bg-white rounded-md border border-zinc-200 p-8">
           {/* Brand */}
           <div className="flex items-center gap-2 mb-8">
@@ -50,14 +68,12 @@ export default function SignInPage() {
             Connect your Canton wallet or use an email magic link.
           </p>
 
-          {/* Tab switcher — Hick's Law: two clear options, no more */}
+          {/* Tab switcher */}
           <div className="flex gap-1 bg-zinc-100 rounded p-1 mb-6">
             <button
               onClick={() => setTab('wallet')}
               className={`flex-1 text-xs py-2 rounded font-bold transition-colors ${
-                tab === 'wallet'
-                  ? 'bg-white text-zinc-900 shadow-sm'
-                  : 'text-zinc-500 hover:text-zinc-700'
+                tab === 'wallet' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'
               }`}
             >
               Canton Wallet
@@ -65,9 +81,7 @@ export default function SignInPage() {
             <button
               onClick={() => setTab('email')}
               className={`flex-1 text-xs py-2 rounded font-bold transition-colors ${
-                tab === 'email'
-                  ? 'bg-white text-zinc-900 shadow-sm'
-                  : 'text-zinc-500 hover:text-zinc-700'
+                tab === 'email' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'
               }`}
             >
               Email Link
@@ -104,7 +118,6 @@ export default function SignInPage() {
                     </p>
                   )}
 
-                  {/* Fitts's Law: full-width, generous height primary button */}
                   <button
                     type="submit"
                     disabled={loading || !email}
@@ -149,13 +162,10 @@ export default function SignInPage() {
             </div>
           </div>
         </div>
-
-        <p className="text-center text-xs text-zinc-400 mt-4">
-          <Link href="/intro" className="hover:text-zinc-600 transition-colors">
-            ← Watch intro
-          </Link>
-        </p>
       </div>
+
+      {/* Intro overlay — fixed on top, auto-plays, fades to sign-in background then unmounts */}
+      {introMounted && <IntroAnimation onDone={handleIntroDone} />}
     </div>
   )
 }

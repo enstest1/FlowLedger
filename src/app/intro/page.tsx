@@ -1,9 +1,6 @@
-'use client'
-import { useRouter } from 'next/navigation'
-import { IntroAnimation } from '@/components/intro/intro-animation'
+import { redirect } from 'next/navigation'
 
+// /intro now just sends you to sign-in which plays the intro automatically
 export default function IntroPage() {
-  const router = useRouter()
-  const go = () => router.push('/auth/signin')
-  return <IntroAnimation onComplete={go} onSkip={go}/>
+  redirect('/auth/signin')
 }
