@@ -2,9 +2,10 @@ import { redirect } from 'next/navigation'
 import { auth } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { RewardTracker } from '@/lib/canton/reward-tracker'
+import type { ReactNode } from 'react'
 
 interface RewardsPageProps {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }
 
 function StatusBadge({
@@ -35,8 +36,8 @@ function SummaryCard({
   sub,
 }: {
   label: string
-  value: string | React.ReactNode
-  sub?: string | React.ReactNode
+  value: string | ReactNode
+  sub?: string | ReactNode
 }) {
   return (
     <div className="border border-zinc-200 rounded-md p-4 bg-white">
@@ -48,17 +49,18 @@ function SummaryCard({
 }
 
 export default async function RewardsPage({ params }: RewardsPageProps) {
+  const { slug } = await params
   const session = await auth()
   if (!session?.user?.id) redirect('/auth/signin')
 
-  const org = await prisma.organization.findUnique({ where: { slug: params.slug } })
+  const org = await prisma.organization.findUnique({ where: { slug } })
   if (!org) redirect('/')
 
   const membership = await prisma.organizationMember.findFirst({
     where: { userId: session.user.id, organizationId: org.id },
   })
   if (!membership || !['ADMIN', 'TREASURY'].includes(membership.role)) {
-    redirect(`/${params.slug}/dashboard`)
+    redirect(`/${slug}/dashboard`)
   }
 
   // ── Data fetches ──────────────────────────────────────────────────────────
