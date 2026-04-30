@@ -44,15 +44,17 @@ export function Sidebar({ slug, orgName, role }: SidebarProps) {
   ]
 
   return (
-    <aside className="w-60 bg-sidebar border-r border-sidebar-border flex flex-col min-h-screen">
-      <div className="px-4 py-3.5 border-b border-sidebar-border">
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 bg-primary flex items-center justify-center shrink-0">
-            <Building2 size={14} className="text-primary-foreground" />
+    <aside className="w-60 bg-white border-r border-zinc-200 flex flex-col min-h-screen">
+      <div className="p-4 border-b border-zinc-200">
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+            <Building2 size={16} className="text-white" />
           </div>
-          <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-widest text-muted-foreground leading-none mb-0.5">FlowLedger</p>
-            <p className="text-sm font-medium text-foreground truncate">{orgName}</p>
+          <div>
+            <p className="text-xs text-zinc-500">FlowLedger</p>
+            <p className="text-sm font-medium text-zinc-900 truncate max-w-[140px]">
+              {orgName}
+            </p>
           </div>
         </div>
       </div>
@@ -66,21 +68,21 @@ export function Sidebar({ slug, orgName, role }: SidebarProps) {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center gap-2.5 px-3 py-2 text-sm transition-colors mb-px border-l-2',
+                'flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors mb-0.5',
                 active
-                  ? 'border-primary bg-primary/8 text-primary font-medium'
-                  : 'border-transparent text-muted-foreground hover:bg-black/5 hover:text-foreground'
+                  ? 'bg-indigo-50 text-indigo-700 font-medium'
+                  : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900'
               )}
             >
-              <Icon size={15} strokeWidth={active ? 2 : 1.5} />
+              <Icon size={16} />
               {item.label}
             </Link>
           )
         })}
       </nav>
-      <div className="px-4 py-3 border-t border-sidebar-border">
-        <p className="text-[10px] uppercase tracking-widest text-muted-foreground/60">
-          Canton Network
+      <div className="p-4 border-t border-zinc-200">
+        <p className="text-xs text-zinc-400 text-center">
+          Powered by Canton Network
         </p>
       </div>
     </aside>

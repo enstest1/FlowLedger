@@ -33,15 +33,15 @@ export default async function VendorsPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">Vendors</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">
+          <h1 className="text-2xl font-bold text-zinc-900">Vendors</h1>
+          <p className="text-zinc-500 text-sm mt-0.5">
             {vendors.length} vendor{vendors.length !== 1 ? 's' : ''} registered
           </p>
         </div>
         {canManage && (
           <Link
             href={`/${slug}/vendors/new`}
-            className="flex items-center gap-1.5 bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors"
+            className="flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
           >
             <Plus size={14} />
             Add Vendor
@@ -50,18 +50,18 @@ export default async function VendorsPage({
       </div>
 
       {vendors.length === 0 ? (
-        <div className="bg-card border border-border p-16 text-center">
-          <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
-            <Users size={20} className="text-muted-foreground/70" />
+        <div className="bg-white rounded-xl border border-zinc-200 p-16 text-center">
+          <div className="w-12 h-12 bg-zinc-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Users size={20} className="text-zinc-400" />
           </div>
-          <h3 className="font-semibold text-foreground mb-2">No vendors yet</h3>
-          <p className="text-sm text-muted-foreground mb-4">
+          <h3 className="font-semibold text-zinc-900 mb-2">No vendors yet</h3>
+          <p className="text-sm text-zinc-500 mb-4">
             Add your first vendor to start creating invoices.
           </p>
           {canManage && (
             <Link
               href={`/${slug}/vendors/new`}
-              className="inline-flex items-center gap-1.5 bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors"
+              className="inline-flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
             >
               <Plus size={14} />
               Add Vendor
@@ -69,26 +69,26 @@ export default async function VendorsPage({
           )}
         </div>
       ) : (
-        <div className="bg-card border border-border overflow-hidden">
+        <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-border">
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              <tr className="border-b border-zinc-100">
+                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
                   Vendor
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
                   Canton Party ID
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
                   Pre-Approval
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
                   Expires
                 </th>
-                <th className="text-right px-4 py-3 text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                <th className="text-right px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -97,14 +97,14 @@ export default async function VendorsPage({
               {vendors.map((vendor) => (
                 <tr
                   key={vendor.id}
-                  className="border-b border-zinc-50 hover:bg-black/5 transition-colors"
+                  className="border-b border-zinc-50 hover:bg-zinc-50 transition-colors"
                 >
                   <td className="px-4 py-3">
                     <div>
-                      <p className="text-sm font-medium text-foreground">
+                      <p className="text-sm font-medium text-zinc-900">
                         {vendor.name}
                       </p>
-                      <p className="text-xs text-muted-foreground/70">{vendor.email}</p>
+                      <p className="text-xs text-zinc-400">{vendor.email}</p>
                     </div>
                   </td>
                   <td className="px-4 py-3">
@@ -117,7 +117,7 @@ export default async function VendorsPage({
                     <StatusBadge status={vendor.status} />
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-sm text-zinc-500">
                       {vendor.preApprovalExpiry
                         ? format(new Date(vendor.preApprovalExpiry), 'MMM d, yyyy')
                         : '—'}
@@ -127,7 +127,7 @@ export default async function VendorsPage({
                     <div className="flex items-center justify-end gap-2">
                       <Link
                         href={`/${slug}/vendors/${vendor.id}`}
-                        className="text-xs text-purple-600 hover:text-purple-700 font-medium"
+                        className="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
                       >
                         View
                       </Link>

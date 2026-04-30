@@ -85,8 +85,8 @@ export default function ExportsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-semibold text-foreground">Exports</h1>
-        <p className="text-muted-foreground text-sm mt-0.5">
+        <h1 className="text-2xl font-bold text-zinc-900">Exports</h1>
+        <p className="text-zinc-500 text-sm mt-0.5">
           Export your data as CSV files
         </p>
       </div>
@@ -98,21 +98,21 @@ export default function ExportsPage() {
       )}
 
       <div className="grid md:grid-cols-2 gap-4">
-        <div className="bg-card border border-border p-6">
+        <div className="bg-white rounded-xl border border-zinc-200 p-6">
           <div className="flex items-start gap-4">
-            <div className="w-10 h-10 bg-purple-50 rounded-xl flex items-center justify-center shrink-0">
-              <FileText size={18} className="text-purple-600" />
+            <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center shrink-0">
+              <FileText size={18} className="text-indigo-600" />
             </div>
             <div className="flex-1">
-              <h2 className="font-semibold text-foreground mb-1">Invoices CSV</h2>
-              <p className="text-sm text-muted-foreground mb-4">
+              <h2 className="font-semibold text-zinc-900 mb-1">Invoices CSV</h2>
+              <p className="text-sm text-zinc-500 mb-4">
                 Export all invoices with vendor, amount, status, and date
                 information.
               </p>
               <button
                 onClick={handleExportInvoices}
                 disabled={loading === 'invoices' || orgIdLoading}
-                className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
               >
                 <Download size={14} />
                 {loading === 'invoices' ? 'Exporting...' : 'Export Invoices'}
@@ -121,14 +121,14 @@ export default function ExportsPage() {
           </div>
         </div>
 
-        <div className="bg-card border border-border p-6">
+        <div className="bg-white rounded-xl border border-zinc-200 p-6">
           <div className="flex items-start gap-4">
             <div className="w-10 h-10 bg-teal-50 rounded-xl flex items-center justify-center shrink-0">
               <Receipt size={18} className="text-teal-600" />
             </div>
             <div className="flex-1">
-              <h2 className="font-semibold text-foreground mb-1">Receipts CSV</h2>
-              <p className="text-sm text-muted-foreground mb-4">
+              <h2 className="font-semibold text-zinc-900 mb-1">Receipts CSV</h2>
+              <p className="text-sm text-zinc-500 mb-4">
                 Export all payment receipts with Canton Update IDs and party
                 information.
               </p>

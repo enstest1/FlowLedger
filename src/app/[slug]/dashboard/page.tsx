@@ -66,6 +66,7 @@ export default async function DashboardPage({
       }),
     ])
 
+  // Get treasury balance from Canton adapter
   const adapter = getCantonAdapter()
   let balance = 0
   try {
@@ -92,8 +93,8 @@ export default async function DashboardPage({
       value: awaitingApproval.length.toString(),
       sub: `${awaitingApproval.length} invoice${awaitingApproval.length !== 1 ? 's' : ''}`,
       icon: CheckSquare,
-      color: 'text-purple-600',
-      bg: 'bg-purple-50',
+      color: 'text-indigo-600',
+      bg: 'bg-indigo-50',
     },
     {
       label: 'Paid This Month',
@@ -117,8 +118,8 @@ export default async function DashboardPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground text-sm mt-0.5">
+          <h1 className="text-2xl font-bold text-zinc-900">Dashboard</h1>
+          <p className="text-zinc-500 text-sm mt-0.5">
             Welcome back,{' '}
             {session.user.name || session.user.email?.split('@')[0]}
           </p>
@@ -126,73 +127,71 @@ export default async function DashboardPage({
         <div className="flex gap-2">
           <Link
             href={`/${slug}/invoices/new`}
-            className="flex items-center gap-1.5 bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition-colors"
+            className="flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
           >
-            <Plus size={13} />
+            <Plus size={14} />
             New Invoice
           </Link>
         </div>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((s) => {
           const Icon = s.icon
           return (
             <div
               key={s.label}
-              className="bg-card border border-border p-4"
+              className="bg-white rounded-xl border border-zinc-200 p-5"
             >
               <div className="flex items-start justify-between mb-3">
-                <div className={`w-8 h-8 ${s.bg} flex items-center justify-center`}>
-                  <Icon size={16} className={s.color} />
+                <div className={`w-9 h-9 ${s.bg} rounded-lg flex items-center justify-center`}>
+                  <Icon size={18} className={s.color} />
                 </div>
               </div>
-              <p className="text-2xl font-semibold text-foreground tabular-nums">{s.value}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">{s.label}</p>
-              <p className="text-xs text-muted-foreground/70 mt-1">{s.sub}</p>
+              <p className="text-2xl font-bold text-zinc-900">{s.value}</p>
+              <p className="text-xs text-zinc-500 mt-0.5">{s.label}</p>
+              <p className="text-xs text-zinc-400 mt-1">{s.sub}</p>
             </div>
           )
         })}
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-4">
+      <div className="grid lg:grid-cols-2 gap-6">
         {/* Upcoming Due Dates */}
-        <div className="bg-card border border-border p-5">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-4">
-            Upcoming Due Dates
-          </h2>
+        <div className="bg-white rounded-xl border border-zinc-200 p-5">
+          <h2 className="font-semibold text-zinc-900 mb-4">Upcoming Due Dates</h2>
           {upcomingDue.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">
+            <p className="text-sm text-zinc-400 text-center py-8">
               No invoices due in the next 14 days
             </p>
           ) : (
-            <div className="space-y-px">
+            <div className="space-y-2">
               {upcomingDue.map((inv) => {
                 const isOverdue = new Date(inv.dueDate) < now
                 return (
                   <Link
                     key={inv.id}
                     href={`/${slug}/invoices/${inv.id}`}
-                    className="flex items-center justify-between p-3 hover:bg-black/5 transition-colors"
+                    className="flex items-center justify-between p-3 rounded-lg hover:bg-zinc-50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
                       {isOverdue && (
-                        <AlertCircle size={13} className="text-red-500 shrink-0" />
+                        <AlertCircle size={14} className="text-red-500 shrink-0" />
                       )}
                       <div>
-                        <p className="text-sm font-medium text-foreground">
+                        <p className="text-sm font-medium text-zinc-900">
                           {inv.invoiceNumber}
                         </p>
-                        <p className="text-xs text-muted-foreground">{inv.vendor.name}</p>
+                        <p className="text-xs text-zinc-400">{inv.vendor.name}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-medium text-foreground tabular-nums">
+                      <p className="text-sm font-medium text-zinc-900">
                         {formatAmount(inv.amount, inv.assetId)}
                       </p>
                       <p
-                        className={`text-xs ${isOverdue ? 'text-red-500 font-medium' : 'text-muted-foreground'}`}
+                        className={`text-xs ${isOverdue ? 'text-red-500 font-medium' : 'text-zinc-400'}`}
                       >
                         {isOverdue ? 'OVERDUE' : format(new Date(inv.dueDate), 'MMM d')}
                       </p>
@@ -205,16 +204,14 @@ export default async function DashboardPage({
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-card border border-border p-5">
-          <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground mb-4">
-            Recent Activity
-          </h2>
+        <div className="bg-white rounded-xl border border-zinc-200 p-5">
+          <h2 className="font-semibold text-zinc-900 mb-4">Recent Activity</h2>
           {recentAuditEvents.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">
+            <p className="text-sm text-zinc-400 text-center py-8">
               No activity yet
             </p>
           ) : (
-            <div className="space-y-px">
+            <div className="space-y-2">
               {recentAuditEvents.map((event) => {
                 const labels: Record<string, string> = {
                   ORG_CREATED: 'Organization created',
@@ -229,12 +226,12 @@ export default async function DashboardPage({
                 }
                 return (
                   <div key={event.id} className="flex items-center gap-3 py-2">
-                    <div className="w-1 h-1 bg-primary rounded-full shrink-0" />
+                    <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground truncate">
+                      <p className="text-sm text-zinc-700 truncate">
                         {labels[event.eventType] ?? event.eventType}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-zinc-400">
                         {event.actor?.name || event.actor?.email || 'System'} ·{' '}
                         {format(new Date(event.createdAt), 'MMM d, h:mm a')}
                       </p>

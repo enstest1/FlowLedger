@@ -95,12 +95,12 @@ export function NewBatchWizard({
       <div className="flex items-center gap-3">
         <Link
           href={`/${slug}/batches`}
-          className="text-muted-foreground/70 hover:text-foreground transition-colors"
+          className="text-zinc-400 hover:text-zinc-700 transition-colors"
         >
           <ArrowLeft size={18} />
         </Link>
         <div>
-          <h1 className="text-xl font-semibold text-foreground">New Payroll Batch</h1>
+          <h1 className="text-2xl font-bold text-zinc-900">New Payroll Batch</h1>
         </div>
       </div>
 
@@ -111,15 +111,15 @@ export function NewBatchWizard({
             <div
               className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium ${
                 step > s
-                  ? 'bg-purple-600 text-white'
+                  ? 'bg-indigo-600 text-white'
                   : step === s
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-border text-muted-foreground'
+                  ? 'bg-indigo-600 text-white'
+                  : 'bg-zinc-200 text-zinc-500'
               }`}
             >
               {step > s ? <CheckCircle size={14} /> : s}
             </div>
-            <span className={`text-xs ${step === s ? 'text-foreground font-medium' : 'text-muted-foreground/70'}`}>
+            <span className={`text-xs ${step === s ? 'text-zinc-700 font-medium' : 'text-zinc-400'}`}>
               {s === 1 ? 'Select' : s === 2 ? 'Review' : 'Pre-flight'}
             </span>
             {i < 2 && <ChevronRight size={14} className="text-zinc-300 mr-1" />}
@@ -135,16 +135,16 @@ export function NewBatchWizard({
 
       {/* Step 1: Select invoices */}
       {step === 1 && (
-        <div className="bg-card border border-border p-5 space-y-4">
+        <div className="bg-white rounded-xl border border-zinc-200 p-5 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-semibold text-foreground">Select Invoices</h2>
+            <h2 className="font-semibold text-zinc-900">Select Invoices</h2>
             <select
               value={assetFilter}
               onChange={(e) => {
                 setAssetFilter(e.target.value)
                 setSelectedIds([])
               }}
-              className="text-sm border border-border rounded-lg px-2 py-1.5 focus:outline-none"
+              className="text-sm border border-zinc-200 rounded-lg px-2 py-1.5 focus:outline-none"
             >
               <option value="USDCX">USDCX</option>
               <option value="CC">CC</option>
@@ -152,15 +152,15 @@ export function NewBatchWizard({
           </div>
 
           {filteredInvoices.length === 0 ? (
-            <p className="text-sm text-muted-foreground/70 py-4 text-center">
+            <p className="text-sm text-zinc-400 py-4 text-center">
               No approved invoices with asset {assetFilter}
             </p>
           ) : (
             <>
-              <div className="border border-border rounded-lg overflow-hidden">
+              <div className="border border-zinc-100 rounded-lg overflow-hidden">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-border bg-muted">
+                    <tr className="border-b border-zinc-100 bg-zinc-50">
                       <th className="px-3 py-2 text-left">
                         <input
                           type="checkbox"
@@ -169,13 +169,13 @@ export function NewBatchWizard({
                           className="rounded"
                         />
                       </th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">
+                      <th className="px-3 py-2 text-left text-xs font-medium text-zinc-500">
                         Invoice
                       </th>
-                      <th className="px-3 py-2 text-left text-xs font-medium text-muted-foreground">
+                      <th className="px-3 py-2 text-left text-xs font-medium text-zinc-500">
                         Vendor
                       </th>
-                      <th className="px-3 py-2 text-right text-xs font-medium text-muted-foreground">
+                      <th className="px-3 py-2 text-right text-xs font-medium text-zinc-500">
                         Amount
                       </th>
                     </tr>
@@ -184,7 +184,7 @@ export function NewBatchWizard({
                     {filteredInvoices.map((inv) => (
                       <tr
                         key={inv.id}
-                        className="border-b border-zinc-50 hover:bg-black/5 cursor-pointer"
+                        className="border-b border-zinc-50 hover:bg-zinc-50 cursor-pointer"
                         onClick={() => toggleInvoice(inv.id)}
                       >
                         <td className="px-3 py-2.5">
@@ -196,15 +196,15 @@ export function NewBatchWizard({
                           />
                         </td>
                         <td className="px-3 py-2.5">
-                          <p className="text-sm font-medium text-foreground">
+                          <p className="text-sm font-medium text-zinc-900">
                             {inv.invoiceNumber}
                           </p>
-                          <p className="text-xs text-muted-foreground/70 max-w-xs truncate">
+                          <p className="text-xs text-zinc-400 max-w-xs truncate">
                             {inv.description}
                           </p>
                         </td>
                         <td className="px-3 py-2.5">
-                          <p className="text-sm text-foreground">{inv.vendorName}</p>
+                          <p className="text-sm text-zinc-700">{inv.vendorName}</p>
                           {inv.vendorPreApprovalStatus === 'EXPIRED' && (
                             <p className="text-xs text-red-500 flex items-center gap-1">
                               <AlertCircle size={10} />
@@ -212,7 +212,7 @@ export function NewBatchWizard({
                             </p>
                           )}
                         </td>
-                        <td className="px-3 py-2.5 text-right text-sm font-medium text-foreground">
+                        <td className="px-3 py-2.5 text-right text-sm font-medium text-zinc-900">
                           {formatAmount(inv.amount, inv.assetId)}
                         </td>
                       </tr>
@@ -221,11 +221,11 @@ export function NewBatchWizard({
                 </table>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-border">
-                <span className="text-sm text-muted-foreground">
+              <div className="flex items-center justify-between pt-2 border-t border-zinc-100">
+                <span className="text-sm text-zinc-500">
                   {selectedIds.length} selected
                 </span>
-                <span className="text-base font-semibold text-foreground">
+                <span className="text-base font-bold text-zinc-900">
                   {formatAmount(total, assetFilter)}
                 </span>
               </div>
@@ -235,7 +235,7 @@ export function NewBatchWizard({
           <button
             onClick={() => setStep(2)}
             disabled={selectedIds.length === 0}
-            className="w-full bg-purple-600 text-white py-2.5 rounded-lg font-medium hover:bg-purple-700 transition-colors disabled:opacity-50"
+            className="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
           >
             Continue
           </button>
@@ -244,11 +244,11 @@ export function NewBatchWizard({
 
       {/* Step 2: Review */}
       {step === 2 && (
-        <div className="bg-card border border-border p-5 space-y-4">
-          <h2 className="font-semibold text-foreground">Review Batch</h2>
+        <div className="bg-white rounded-xl border border-zinc-200 p-5 space-y-4">
+          <h2 className="font-semibold text-zinc-900">Review Batch</h2>
 
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">
+            <label className="block text-sm font-medium text-zinc-700 mb-1.5">
               Batch name *
             </label>
             <input
@@ -256,24 +256,24 @@ export function NewBatchWizard({
               value={batchName}
               onChange={(e) => setBatchName(e.target.value)}
               placeholder={`${new Date().toLocaleString('default', { month: 'long' })} ${new Date().getFullYear()} Payroll`}
-              className="w-full px-3 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
 
-          <div className="bg-muted p-4 space-y-2">
+          <div className="bg-zinc-50 rounded-xl p-4 space-y-2">
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Invoices</span>
-              <span className="font-medium text-foreground">
+              <span className="text-zinc-500">Invoices</span>
+              <span className="font-medium text-zinc-900">
                 {selectedInvoices.length}
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-muted-foreground">Asset</span>
-              <span className="font-medium text-foreground">{assetFilter}</span>
+              <span className="text-zinc-500">Asset</span>
+              <span className="font-medium text-zinc-900">{assetFilter}</span>
             </div>
-            <div className="flex justify-between text-sm border-t border-border pt-2 mt-2">
-              <span className="font-semibold text-foreground">Total</span>
-              <span className="font-semibold text-foreground">
+            <div className="flex justify-between text-sm border-t border-zinc-200 pt-2 mt-2">
+              <span className="font-semibold text-zinc-700">Total</span>
+              <span className="font-bold text-zinc-900">
                 {formatAmount(total, assetFilter)}
               </span>
             </div>
@@ -286,10 +286,10 @@ export function NewBatchWizard({
                 className="flex items-center justify-between py-2 border-b border-zinc-50 text-sm"
               >
                 <div>
-                  <p className="font-medium text-foreground">{inv.invoiceNumber}</p>
-                  <p className="text-xs text-muted-foreground/70">{inv.vendorName}</p>
+                  <p className="font-medium text-zinc-900">{inv.invoiceNumber}</p>
+                  <p className="text-xs text-zinc-400">{inv.vendorName}</p>
                 </div>
-                <span className="font-medium text-foreground">
+                <span className="font-medium text-zinc-900">
                   {formatAmount(inv.amount, inv.assetId)}
                 </span>
               </div>
@@ -299,14 +299,14 @@ export function NewBatchWizard({
           <div className="flex gap-3">
             <button
               onClick={() => setStep(1)}
-              className="flex-1 border border-border text-foreground py-2.5 rounded-lg font-medium hover:bg-black/5 transition-colors"
+              className="flex-1 border border-zinc-200 text-zinc-700 py-2.5 rounded-lg font-medium hover:bg-zinc-50 transition-colors"
             >
               Back
             </button>
             <button
               onClick={() => setStep(3)}
               disabled={!batchName}
-              className="flex-1 bg-purple-600 text-white py-2.5 rounded-lg font-medium hover:bg-purple-700 transition-colors disabled:opacity-50"
+              className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
             >
               Pre-flight Check
             </button>
@@ -316,8 +316,8 @@ export function NewBatchWizard({
 
       {/* Step 3: Pre-flight */}
       {step === 3 && (
-        <div className="bg-card border border-border p-5 space-y-4">
-          <h2 className="font-semibold text-foreground">Pre-flight Check</h2>
+        <div className="bg-white rounded-xl border border-zinc-200 p-5 space-y-4">
+          <h2 className="font-semibold text-zinc-900">Pre-flight Check</h2>
 
           <div className="space-y-3">
             {/* Balance check */}
@@ -392,11 +392,11 @@ export function NewBatchWizard({
             </div>
           </div>
 
-          <div className="bg-muted p-4 flex justify-between">
-            <span className="text-sm font-semibold text-foreground">
+          <div className="bg-zinc-50 rounded-xl p-4 flex justify-between">
+            <span className="text-sm font-semibold text-zinc-700">
               Total to settle
             </span>
-            <span className="text-base font-semibold text-foreground">
+            <span className="text-base font-bold text-zinc-900">
               {formatAmount(total, assetFilter)}
             </span>
           </div>
@@ -405,7 +405,7 @@ export function NewBatchWizard({
             <button
               onClick={() => setStep(2)}
               disabled={loading}
-              className="flex-1 border border-border text-foreground py-2.5 rounded-lg font-medium hover:bg-black/5 transition-colors"
+              className="flex-1 border border-zinc-200 text-zinc-700 py-2.5 rounded-lg font-medium hover:bg-zinc-50 transition-colors"
             >
               Back
             </button>
@@ -414,7 +414,7 @@ export function NewBatchWizard({
               disabled={
                 loading || hasExpiredApprovals || hasInsufficientBalance
               }
-              className="flex-1 bg-purple-600 text-white py-2.5 rounded-lg font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading && <Loader2 size={14} className="animate-spin" />}
               {loading ? 'Creating...' : 'Create Batch'}

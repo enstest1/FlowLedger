@@ -49,7 +49,7 @@ export function getStatusColor(status: string): string {
     INACTIVE: 'bg-zinc-100 text-zinc-400',
     SUSPENDED: 'bg-red-100 text-red-700',
     READY: 'bg-sky-100 text-sky-700',
-    PROCESSING: 'bg-purple-100 text-purple-700',
+    PROCESSING: 'bg-indigo-100 text-indigo-700',
     PARTIAL: 'bg-orange-100 text-orange-700',
   }
   return colors[status] ?? 'bg-zinc-100 text-zinc-700'

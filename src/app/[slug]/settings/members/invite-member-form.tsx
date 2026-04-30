@@ -35,8 +35,8 @@ export function InviteMemberForm({ orgId, slug }: Props) {
   }
 
   return (
-    <div className="bg-card border border-border p-6">
-      <h2 className="font-semibold text-foreground mb-4">Invite Team Member</h2>
+    <div className="bg-white rounded-xl border border-zinc-200 p-6">
+      <h2 className="font-semibold text-zinc-900 mb-4">Invite Team Member</h2>
 
       {error && (
         <p className="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg mb-4">
@@ -56,12 +56,12 @@ export function InviteMemberForm({ orgId, slug }: Props) {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="colleague@company.com"
           required
-          className="flex-1 px-3 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+          className="flex-1 px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
         <select
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          className="px-3 py-2.5 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+          className="px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
         >
           <option value="APPROVER">Approver</option>
           <option value="TREASURY">Treasury</option>
@@ -71,7 +71,7 @@ export function InviteMemberForm({ orgId, slug }: Props) {
         <button
           type="submit"
           disabled={loading || !email}
-          className="flex items-center gap-1.5 bg-purple-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors disabled:opacity-50"
+          className="flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
         >
           {loading ? (
             <Loader2 size={14} className="animate-spin" />

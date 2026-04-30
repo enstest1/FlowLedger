@@ -62,7 +62,7 @@ export function BatchExecuteButton({ batchId, slug }: Props) {
   if (showConfirm) {
     return (
       <div className="flex items-center gap-2">
-        <span className="text-sm text-muted-foreground">Are you sure?</span>
+        <span className="text-sm text-zinc-500">Are you sure?</span>
         <button
           onClick={handleExecute}
           disabled={loading}
@@ -77,7 +77,7 @@ export function BatchExecuteButton({ batchId, slug }: Props) {
         </button>
         <button
           onClick={() => setShowConfirm(false)}
-          className="text-sm text-muted-foreground hover:text-foreground"
+          className="text-sm text-zinc-500 hover:text-zinc-700"
         >
           Cancel
         </button>
@@ -88,7 +88,7 @@ export function BatchExecuteButton({ batchId, slug }: Props) {
   return (
     <button
       onClick={() => setShowConfirm(true)}
-      className="flex items-center gap-1.5 bg-purple-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-purple-700 transition-colors"
+      className="flex items-center gap-1.5 bg-indigo-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
     >
       <Zap size={16} />
       Execute Batch
