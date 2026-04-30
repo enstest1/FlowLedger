@@ -41,11 +41,8 @@ export function Sidebar({ slug, orgName, role }: SidebarProps) {
     <aside className="w-[200px] bg-white border-r border-zinc-200 flex flex-col min-h-screen shrink-0">
       {/* Brand header */}
       <div className="px-4 py-4 border-b border-zinc-200">
-        <p className="text-[10px] tracking-widest uppercase text-zinc-400 mb-0.5">
+        <p className="text-sm font-bold text-zinc-900 tracking-tight">
           FlowLedger
-        </p>
-        <p className="text-sm font-bold text-zinc-900 truncate leading-tight">
-          {orgName}
         </p>
       </div>
 
