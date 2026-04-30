@@ -149,7 +149,7 @@ export function NewInvoiceForm({
             </label>
             {vendors.length === 0 ? (
               <p className="text-sm text-zinc-400">
-                <Link href={`/${slug}/vendors/new`} className="text-indigo-600">
+                <Link href={`/${slug}/vendors/new`} className="text-[#2d5a4f]">
                   Add a vendor first
                 </Link>
               </p>
@@ -158,7 +158,7 @@ export function NewInvoiceForm({
                 value={vendorId}
                 onChange={(e) => setVendorId(e.target.value)}
                 required
-                className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4d6b54]"
               >
                 {vendors.map((v) => (
                   <option key={v.id} value={v.id}>
@@ -175,7 +175,7 @@ export function NewInvoiceForm({
             <select
               value={assetId}
               onChange={(e) => setAssetId(e.target.value as 'USDCX' | 'CC')}
-              className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4d6b54]"
             >
               <option value="USDCX">USDCX</option>
               <option value="CC">CC</option>
@@ -193,7 +193,7 @@ export function NewInvoiceForm({
             required
             rows={2}
             placeholder="Frontend development — April 2024"
-            className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4d6b54]"
           />
         </div>
 
@@ -206,7 +206,7 @@ export function NewInvoiceForm({
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
             required
-            className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4d6b54]"
           />
         </div>
 
@@ -219,7 +219,7 @@ export function NewInvoiceForm({
             <button
               type="button"
               onClick={addLineItem}
-              className="text-xs text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"
+              className="text-xs text-[#2d5a4f] hover:text-[#234740] font-medium flex items-center gap-1"
             >
               <Plus size={12} />
               Add line
@@ -235,7 +235,7 @@ export function NewInvoiceForm({
                     updateLineItem(idx, 'description', e.target.value)
                   }
                   placeholder="Description"
-                  className="flex-1 px-3 py-2 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="flex-1 px-3 py-2 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4d6b54]"
                 />
                 <input
                   type="number"
@@ -245,7 +245,7 @@ export function NewInvoiceForm({
                   }
                   min={1}
                   placeholder="Qty"
-                  className="w-16 px-2 py-2 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-16 px-2 py-2 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4d6b54]"
                 />
                 <input
                   type="number"
@@ -256,7 +256,7 @@ export function NewInvoiceForm({
                   min={0}
                   step="0.01"
                   placeholder="Price"
-                  className="w-24 px-2 py-2 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-24 px-2 py-2 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4d6b54]"
                 />
                 {lineItems.length > 1 && (
                   <button
@@ -294,7 +294,7 @@ export function NewInvoiceForm({
           <button
             type="submit"
             disabled={loading || !vendorId || !description || totalAmount <= 0}
-            className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
+            className="flex-1 bg-[#2d5a4f] text-white py-2.5 rounded-lg font-medium hover:bg-[#234740] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
           >
             {loading && <Loader2 size={14} className="animate-spin" />}
             {loading ? 'Creating...' : 'Create Invoice'}

@@ -11,7 +11,7 @@ interface TopbarProps {
 }
 
 const roleMeta: Record<string, { label: string; cls: string }> = {
-  ADMIN: { label: 'Admin', cls: 'bg-indigo-50 text-indigo-700 border border-indigo-200' },
+  ADMIN: { label: 'Admin', cls: 'bg-[#ebefe9] text-[#234740] border border-[#b0c4b8]' },
   TREASURY: { label: 'Treasury', cls: 'bg-sky-50 text-sky-700 border border-sky-200' },
   APPROVER: { label: 'Approver', cls: 'bg-amber-50 text-amber-700 border border-amber-200' },
   ACCOUNTANT: { label: 'Accountant', cls: 'bg-zinc-100 text-zinc-600 border border-zinc-200' },

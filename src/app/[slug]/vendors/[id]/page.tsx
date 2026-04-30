@@ -174,7 +174,7 @@ export default async function VendorDetailPage({
                   <td className="px-4 py-3">
                     <Link
                       href={`/${slug}/invoices/${inv.id}`}
-                      className="text-sm font-medium text-indigo-600 hover:text-indigo-700"
+                      className="text-sm font-medium text-[#2d5a4f] hover:text-[#234740]"
                     >
                       {inv.invoiceNumber}
                     </Link>

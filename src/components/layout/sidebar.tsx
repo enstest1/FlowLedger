@@ -13,6 +13,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { GlobeLoader } from '@/components/globe-loader'
+import { FlowLedgerMark } from '@/components/flow-ledger-mark'
 
 interface SidebarProps {
   slug: string
@@ -40,7 +41,8 @@ export function Sidebar({ slug, orgName, role }: SidebarProps) {
   return (
     <aside className="w-[200px] bg-white border-r border-zinc-200 flex flex-col min-h-screen shrink-0">
       {/* Brand header */}
-      <div className="px-4 py-4 border-b border-zinc-200">
+      <div className="px-4 py-4 border-b border-zinc-200 flex items-center gap-2.5">
+        <FlowLedgerMark size={24} />
         <p className="text-sm font-bold text-zinc-900 tracking-tight">
           FlowLedger
         </p>
@@ -59,13 +61,13 @@ export function Sidebar({ slug, orgName, role }: SidebarProps) {
               className={cn(
                 'flex items-center gap-2.5 mx-2 px-3 py-2.5 rounded-md text-sm transition-colors mb-px',
                 active
-                  ? 'bg-indigo-50 text-indigo-700 font-bold'
+                  ? 'bg-[#ebefe9] text-[#2d5a4f] font-bold'
                   : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800'
               )}
             >
               <Icon
                 size={15}
-                className={active ? 'text-indigo-600' : 'text-zinc-400'}
+                className={active ? 'text-[#2d5a4f]' : 'text-zinc-400'}
               />
               {item.label}
             </Link>

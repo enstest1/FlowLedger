@@ -83,7 +83,7 @@ export default async function ReceiptsPage({
                   <td className="px-4 py-3">
                     <Link
                       href={`/${slug}/invoices/${receipt.invoiceId}`}
-                      className="text-sm font-medium text-indigo-600 hover:text-indigo-700"
+                      className="text-sm font-medium text-[#2d5a4f] hover:text-[#234740]"
                     >
                       {receipt.invoice.invoiceNumber}
                     </Link>
@@ -105,7 +105,7 @@ export default async function ReceiptsPage({
                   <td className="px-4 py-3 text-right">
                     <Link
                       href={`/${slug}/receipts/${receipt.id}`}
-                      className="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+                      className="text-xs text-[#2d5a4f] hover:text-[#234740] font-medium"
                     >
                       View
                     </Link>

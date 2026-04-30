@@ -69,7 +69,7 @@ export default async function ApprovalsPage({
                     <div className="flex items-center gap-2 mb-1">
                       <Link
                         href={`/${slug}/invoices/${invoice.id}`}
-                        className="text-base font-semibold text-zinc-900 hover:text-indigo-600 transition-colors"
+                        className="text-base font-semibold text-zinc-900 hover:text-[#2d5a4f] transition-colors"
                       >
                         {invoice.invoiceNumber}
                       </Link>

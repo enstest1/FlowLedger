@@ -69,7 +69,7 @@ export default function OnboardingPage() {
       <div className="w-full max-w-lg">
         {/* Logo */}
         <div className="flex items-center gap-2 mb-8 justify-center">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-[#2d5a4f] rounded-lg flex items-center justify-center">
             <Building2 size={16} className="text-white" />
           </div>
           <span className="font-semibold text-zinc-900">FlowLedger</span>
@@ -82,9 +82,9 @@ export default function OnboardingPage() {
               <div
                 className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium transition-colors ${
                   step > s.n
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-[#2d5a4f] text-white'
                     : step === s.n
-                    ? 'bg-indigo-600 text-white'
+                    ? 'bg-[#2d5a4f] text-white'
                     : 'bg-zinc-200 text-zinc-500'
                 }`}
               >
@@ -128,7 +128,7 @@ export default function OnboardingPage() {
                     value={orgName}
                     onChange={(e) => handleNameChange(e.target.value)}
                     placeholder="Acme Corp"
-                    className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4d6b54]"
                   />
                 </div>
                 <div>
@@ -152,7 +152,7 @@ export default function OnboardingPage() {
               <button
                 onClick={() => setStep(2)}
                 disabled={!orgName || !slug}
-                className="mt-6 w-full bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                className="mt-6 w-full bg-[#2d5a4f] text-white py-2.5 rounded-lg font-medium hover:bg-[#234740] transition-colors disabled:opacity-50"
               >
                 Continue
               </button>
@@ -178,7 +178,7 @@ export default function OnboardingPage() {
                     onChange={(e) => setTreasuryPartyId(e.target.value)}
                     placeholder="hint::fingerprint (hex)"
                     rows={3}
-                    className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#4d6b54]"
                   />
                   <p className="text-xs text-zinc-400 mt-1">
                     Format: hint::hexfingerprint (e.g. acme-treasury::a1b2c3...)
@@ -187,7 +187,7 @@ export default function OnboardingPage() {
                 <button
                   type="button"
                   onClick={generateTreasuryId}
-                  className="text-sm text-indigo-600 hover:text-indigo-700 font-medium"
+                  className="text-sm text-[#2d5a4f] hover:text-[#234740] font-medium"
                 >
                   Generate a demo party ID
                 </button>
@@ -202,7 +202,7 @@ export default function OnboardingPage() {
                 <button
                   onClick={() => setStep(3)}
                   disabled={!treasuryPartyId}
-                  className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                  className="flex-1 bg-[#2d5a4f] text-white py-2.5 rounded-lg font-medium hover:bg-[#234740] transition-colors disabled:opacity-50"
                 >
                   Continue
                 </button>
@@ -229,7 +229,7 @@ export default function OnboardingPage() {
                     onChange={(e) =>
                       setDefaultAsset(e.target.value as 'USDCX' | 'CC')
                     }
-                    className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4d6b54]"
                   >
                     <option value="USDCX">USDCX (USD-backed stablecoin)</option>
                     <option value="CC">CC (Canton Coin)</option>
@@ -247,7 +247,7 @@ export default function OnboardingPage() {
                       type="number"
                       value={approvalThreshold}
                       onChange={(e) => setApprovalThreshold(e.target.value)}
-                      className="w-full pl-16 pr-4 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full pl-16 pr-4 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4d6b54]"
                     />
                   </div>
                   <p className="text-xs text-zinc-400 mt-1">
@@ -279,7 +279,7 @@ export default function OnboardingPage() {
                 </button>
                 <button
                   onClick={() => setStep(4)}
-                  className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+                  className="flex-1 bg-[#2d5a4f] text-white py-2.5 rounded-lg font-medium hover:bg-[#234740] transition-colors"
                 >
                   Continue
                 </button>
@@ -333,7 +333,7 @@ export default function OnboardingPage() {
                 <button
                   onClick={handleSubmit}
                   disabled={loading}
-                  className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                  className="flex-1 bg-[#2d5a4f] text-white py-2.5 rounded-lg font-medium hover:bg-[#234740] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
                 >
                   {loading && <Loader2 size={16} className="animate-spin" />}
                   {loading ? 'Creating...' : 'Create Workspace'}

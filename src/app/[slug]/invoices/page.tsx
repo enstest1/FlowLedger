@@ -42,7 +42,7 @@ export default async function InvoicesPage({
         {canCreate && (
           <Link
             href={`/${slug}/invoices/new`}
-            className="flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2.5 rounded-md text-sm font-bold hover:bg-indigo-700 transition-colors"
+            className="flex items-center gap-1.5 bg-[#2d5a4f] text-white px-4 py-2.5 rounded-md text-sm font-bold hover:bg-[#234740] transition-colors"
           >
             <Plus size={14} />
             New Invoice
@@ -62,7 +62,7 @@ export default async function InvoicesPage({
           {canCreate && (
             <Link
               href={`/${slug}/invoices/new`}
-              className="inline-flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2.5 rounded-md text-sm font-bold hover:bg-indigo-700 transition-colors"
+              className="inline-flex items-center gap-1.5 bg-[#2d5a4f] text-white px-4 py-2.5 rounded-md text-sm font-bold hover:bg-[#234740] transition-colors"
             >
               <Plus size={14} />
               New Invoice
@@ -134,7 +134,7 @@ export default async function InvoicesPage({
                     <td className="px-4 py-3 text-right">
                       <Link
                         href={`/${slug}/invoices/${inv.id}`}
-                        className="text-xs text-indigo-600 hover:text-indigo-700 font-bold"
+                        className="text-xs text-[#2d5a4f] hover:text-[#234740] font-bold"
                       >
                         View →
                       </Link>

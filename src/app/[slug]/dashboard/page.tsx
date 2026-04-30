@@ -93,9 +93,9 @@ export default async function DashboardPage({
       value: awaitingApproval.length.toString(),
       sub: `${awaitingApproval.length} invoice${awaitingApproval.length !== 1 ? 's' : ''}`,
       icon: CheckSquare,
-      color: 'text-indigo-600',
-      bg: 'bg-indigo-50',
-      border: 'border-indigo-100',
+      color: 'text-[#2d5a4f]',
+      bg: 'bg-[#ebefe9]',
+      border: 'border-[#d6dcd2]',
     },
     {
       label: 'Paid This Month',
@@ -142,7 +142,7 @@ export default async function DashboardPage({
         {/* Von Restorff + Fitts's Law: primary CTA is visually dominant */}
         <Link
           href={`/${slug}/invoices/new`}
-          className="flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2.5 rounded-md text-sm font-bold hover:bg-indigo-700 transition-colors"
+          className="flex items-center gap-1.5 bg-[#2d5a4f] text-white px-4 py-2.5 rounded-md text-sm font-bold hover:bg-[#234740] transition-colors"
         >
           <Plus size={14} />
           New Invoice
@@ -224,7 +224,7 @@ export default async function DashboardPage({
             <div className="space-y-1">
               {recentAuditEvents.map((event) => (
                 <div key={event.id} className="flex items-center gap-3 px-2 py-2.5">
-                  <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full shrink-0" />
+                  <div className="w-1.5 h-1.5 bg-[#4d6b54] rounded-full shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-zinc-700 truncate">
                       {auditLabels[event.eventType] ?? event.eventType}

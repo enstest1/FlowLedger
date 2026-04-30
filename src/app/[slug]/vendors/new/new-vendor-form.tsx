@@ -56,13 +56,13 @@ export function NewVendorForm({ orgId, slug }: Props) {
         </div>
       </div>
 
-      <div className="bg-indigo-50 border border-indigo-100 rounded-xl p-4 flex gap-3">
-        <Info size={16} className="text-indigo-600 shrink-0 mt-0.5" />
+      <div className="bg-[#ebefe9] border border-[#d6dcd2] rounded-xl p-4 flex gap-3">
+        <Info size={16} className="text-[#2d5a4f] shrink-0 mt-0.5" />
         <div>
-          <p className="text-sm font-medium text-indigo-900 mb-0.5">
+          <p className="text-sm font-medium text-[#1a332d] mb-0.5">
             Canton Pre-Approval
           </p>
-          <p className="text-xs text-indigo-700">
+          <p className="text-xs text-[#234740]">
             When you add a vendor, FlowLedger automatically registers their
             party on Canton and sets up a transfer pre-approval valid for 90
             days. This enables seamless payments without per-transaction
@@ -91,7 +91,7 @@ export function NewVendorForm({ orgId, slug }: Props) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4d6b54]"
             />
           </div>
           <div>
@@ -103,7 +103,7 @@ export function NewVendorForm({ orgId, slug }: Props) {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4d6b54]"
             />
           </div>
         </div>
@@ -118,7 +118,7 @@ export function NewVendorForm({ orgId, slug }: Props) {
             onChange={(e) => setCantonPartyId(e.target.value)}
             placeholder="alice::a1b2c3d4..."
             required
-            className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#4d6b54]"
           />
           <p className="text-xs text-zinc-400 mt-1">
             Format: hint::hexfingerprint
@@ -134,7 +134,7 @@ export function NewVendorForm({ orgId, slug }: Props) {
             onChange={(e) =>
               setPreferredAsset(e.target.value as 'USDCX' | 'CC')
             }
-            className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4d6b54]"
           >
             <option value="USDCX">USDCX</option>
             <option value="CC">CC</option>
@@ -149,7 +149,7 @@ export function NewVendorForm({ orgId, slug }: Props) {
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={3}
-            className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4d6b54]"
           />
         </div>
 
@@ -163,7 +163,7 @@ export function NewVendorForm({ orgId, slug }: Props) {
           <button
             type="submit"
             disabled={loading || !name || !email || !cantonPartyId}
-            className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
+            className="flex-1 bg-[#2d5a4f] text-white py-2.5 rounded-lg font-medium hover:bg-[#234740] transition-colors disabled:opacity-50 flex items-center justify-center gap-2 text-sm"
           >
             {loading && <Loader2 size={14} className="animate-spin" />}
             {loading ? 'Adding...' : 'Add Vendor'}

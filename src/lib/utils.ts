@@ -50,7 +50,7 @@ export function getStatusColor(status: string): string {
     INACTIVE: 'bg-zinc-100 text-zinc-400',
     SUSPENDED: 'bg-red-50 text-red-700',
     READY: 'bg-sky-50 text-sky-700',
-    PROCESSING: 'bg-indigo-50 text-indigo-700',
+    PROCESSING: 'bg-[#ebefe9] text-[#2d5a4f]',
     PARTIAL: 'bg-orange-50 text-orange-700',
   }
   return colors[status] ?? 'bg-zinc-100 text-zinc-600'
@@ -74,7 +74,7 @@ export function getStatusDot(status: string): string {
     INACTIVE: 'bg-zinc-300',
     SUSPENDED: 'bg-red-500',
     READY: 'bg-sky-500',
-    PROCESSING: 'bg-indigo-500',
+    PROCESSING: 'bg-[#4d6b54]',
     PARTIAL: 'bg-orange-500',
   }
   return dots[status] ?? 'bg-zinc-400'

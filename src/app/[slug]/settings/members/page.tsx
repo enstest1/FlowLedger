@@ -29,7 +29,7 @@ export default async function MembersPage({
   const isAdmin = membership.role === 'ADMIN'
 
   const roleColors: Record<string, string> = {
-    ADMIN: 'bg-indigo-100 text-indigo-700',
+    ADMIN: 'bg-[#d6dcd2] text-[#234740]',
     TREASURY: 'bg-sky-100 text-sky-700',
     APPROVER: 'bg-amber-100 text-amber-700',
     ACCOUNTANT: 'bg-zinc-100 text-zinc-700',

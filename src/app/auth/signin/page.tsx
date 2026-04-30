@@ -4,6 +4,7 @@ import { signIn } from 'next-auth/react'
 import { Mail, Loader2 } from 'lucide-react'
 import { CantonWalletConnect } from '@/components/canton-wallet-connect'
 import { IntroAnimation } from '@/components/intro/intro-animation'
+import { FlowLedgerMark } from '@/components/flow-ledger-mark'
 
 type Tab = 'email' | 'wallet'
 
@@ -57,9 +58,7 @@ export default function SignInPage() {
         <div className="bg-white rounded-md border border-zinc-200 p-8">
           {/* Brand */}
           <div className="flex items-center gap-2 mb-8">
-            <div className="w-7 h-7 bg-indigo-600 rounded-sm flex items-center justify-center">
-              <span className="text-white text-xs font-bold">FL</span>
-            </div>
+            <FlowLedgerMark size={28} />
             <span className="font-bold text-zinc-900 tracking-tight">FlowLedger</span>
           </div>
 
@@ -73,7 +72,7 @@ export default function SignInPage() {
             <button
               onClick={() => setTab('wallet')}
               className={`flex-1 text-xs py-2 rounded font-bold transition-colors ${
-                tab === 'wallet' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'
+                tab === 'wallet' ? 'bg-white text-zinc-900' : 'text-zinc-500 hover:text-zinc-700'
               }`}
             >
               Canton Wallet
@@ -81,7 +80,7 @@ export default function SignInPage() {
             <button
               onClick={() => setTab('email')}
               className={`flex-1 text-xs py-2 rounded font-bold transition-colors ${
-                tab === 'email' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-700'
+                tab === 'email' ? 'bg-white text-zinc-900' : 'text-zinc-500 hover:text-zinc-700'
               }`}
             >
               Email Link
@@ -105,7 +104,7 @@ export default function SignInPage() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="you@example.com"
-                        className="w-full pl-9 pr-4 py-2.5 border border-zinc-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                        className="w-full pl-9 pr-4 py-2.5 border border-zinc-200 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#2d5a4f] focus:border-transparent"
                         required
                         disabled={loading}
                       />
@@ -121,7 +120,7 @@ export default function SignInPage() {
                   <button
                     type="submit"
                     disabled={loading || !email}
-                    className="w-full bg-indigo-600 text-white py-3 rounded-md font-bold text-sm hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full bg-[#2d5a4f] text-white py-3 rounded-md font-bold text-sm hover:bg-[#234740] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {loading && <Loader2 size={14} className="animate-spin" />}
                     {loading ? 'Sending…' : 'Send Magic Link'}
@@ -149,7 +148,7 @@ export default function SignInPage() {
             <div className="flex gap-2">
               <a
                 href="/api/dev/signin?email=admin@flowledger.io"
-                className="flex-1 text-center text-xs bg-indigo-50 text-indigo-700 py-2.5 rounded-md hover:bg-indigo-100 transition-colors font-bold border border-indigo-100"
+                className="flex-1 text-center text-xs bg-[#ebefe9] text-[#2d5a4f] py-2.5 rounded-md hover:bg-[#d6dcd2] transition-colors font-bold border border-[#b0c4b8]"
               >
                 Admin
               </a>

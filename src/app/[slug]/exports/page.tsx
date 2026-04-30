@@ -100,8 +100,8 @@ export default function ExportsPage() {
       <div className="grid md:grid-cols-2 gap-4">
         <div className="bg-white rounded-xl border border-zinc-200 p-6">
           <div className="flex items-start gap-4">
-            <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center shrink-0">
-              <FileText size={18} className="text-indigo-600" />
+            <div className="w-10 h-10 bg-[#ebefe9] rounded-xl flex items-center justify-center shrink-0">
+              <FileText size={18} className="text-[#2d5a4f]" />
             </div>
             <div className="flex-1">
               <h2 className="font-semibold text-zinc-900 mb-1">Invoices CSV</h2>
@@ -112,7 +112,7 @@ export default function ExportsPage() {
               <button
                 onClick={handleExportInvoices}
                 disabled={loading === 'invoices' || orgIdLoading}
-                className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 bg-[#2d5a4f] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#234740] transition-colors disabled:opacity-50"
               >
                 <Download size={14} />
                 {loading === 'invoices' ? 'Exporting...' : 'Export Invoices'}

@@ -29,8 +29,8 @@ export default async function ProfilePage() {
         <div className="bg-white rounded-xl border border-zinc-200 p-6 space-y-4">
           <h2 className="text-sm font-semibold text-zinc-900">Account</h2>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
-              <User size={18} className="text-indigo-600" />
+            <div className="w-10 h-10 bg-[#d6dcd2] rounded-full flex items-center justify-center">
+              <User size={18} className="text-[#2d5a4f]" />
             </div>
             <div>
               <p className="text-sm font-medium text-zinc-900">{user.name || 'Unnamed user'}</p>
@@ -48,7 +48,7 @@ export default async function ProfilePage() {
                   <div key={m.id} className="flex items-center justify-between text-sm">
                     <a
                       href={`/${m.organization.slug}/dashboard`}
-                      className="text-indigo-600 hover:underline"
+                      className="text-[#2d5a4f] hover:underline"
                     >
                       {m.organization.name}
                     </a>

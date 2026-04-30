@@ -41,7 +41,7 @@ export default async function VendorsPage({
         {canManage && (
           <Link
             href={`/${slug}/vendors/new`}
-            className="flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+            className="flex items-center gap-1.5 bg-[#2d5a4f] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#234740] transition-colors"
           >
             <Plus size={14} />
             Add Vendor
@@ -61,7 +61,7 @@ export default async function VendorsPage({
           {canManage && (
             <Link
               href={`/${slug}/vendors/new`}
-              className="inline-flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+              className="inline-flex items-center gap-1.5 bg-[#2d5a4f] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#234740] transition-colors"
             >
               <Plus size={14} />
               Add Vendor
@@ -127,7 +127,7 @@ export default async function VendorsPage({
                     <div className="flex items-center justify-end gap-2">
                       <Link
                         href={`/${slug}/vendors/${vendor.id}`}
-                        className="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+                        className="text-xs text-[#2d5a4f] hover:text-[#234740] font-medium"
                       >
                         View
                       </Link>

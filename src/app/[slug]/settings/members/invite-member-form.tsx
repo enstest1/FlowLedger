@@ -56,12 +56,12 @@ export function InviteMemberForm({ orgId, slug }: Props) {
           onChange={(e) => setEmail(e.target.value)}
           placeholder="colleague@company.com"
           required
-          className="flex-1 px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="flex-1 px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4d6b54]"
         />
         <select
           value={role}
           onChange={(e) => setRole(e.target.value)}
-          className="px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+          className="px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4d6b54]"
         >
           <option value="APPROVER">Approver</option>
           <option value="TREASURY">Treasury</option>
@@ -71,7 +71,7 @@ export function InviteMemberForm({ orgId, slug }: Props) {
         <button
           type="submit"
           disabled={loading || !email}
-          className="flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+          className="flex items-center gap-1.5 bg-[#2d5a4f] text-white px-4 py-2.5 rounded-lg text-sm font-medium hover:bg-[#234740] transition-colors disabled:opacity-50"
         >
           {loading ? (
             <Loader2 size={14} className="animate-spin" />

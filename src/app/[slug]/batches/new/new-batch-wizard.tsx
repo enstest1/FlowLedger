@@ -111,9 +111,9 @@ export function NewBatchWizard({
             <div
               className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-medium ${
                 step > s
-                  ? 'bg-indigo-600 text-white'
+                  ? 'bg-[#2d5a4f] text-white'
                   : step === s
-                  ? 'bg-indigo-600 text-white'
+                  ? 'bg-[#2d5a4f] text-white'
                   : 'bg-zinc-200 text-zinc-500'
               }`}
             >
@@ -235,7 +235,7 @@ export function NewBatchWizard({
           <button
             onClick={() => setStep(2)}
             disabled={selectedIds.length === 0}
-            className="w-full bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+            className="w-full bg-[#2d5a4f] text-white py-2.5 rounded-lg font-medium hover:bg-[#234740] transition-colors disabled:opacity-50"
           >
             Continue
           </button>
@@ -256,7 +256,7 @@ export function NewBatchWizard({
               value={batchName}
               onChange={(e) => setBatchName(e.target.value)}
               placeholder={`${new Date().toLocaleString('default', { month: 'long' })} ${new Date().getFullYear()} Payroll`}
-              className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2.5 border border-zinc-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#4d6b54]"
             />
           </div>
 
@@ -306,7 +306,7 @@ export function NewBatchWizard({
             <button
               onClick={() => setStep(3)}
               disabled={!batchName}
-              className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
+              className="flex-1 bg-[#2d5a4f] text-white py-2.5 rounded-lg font-medium hover:bg-[#234740] transition-colors disabled:opacity-50"
             >
               Pre-flight Check
             </button>
@@ -414,7 +414,7 @@ export function NewBatchWizard({
               disabled={
                 loading || hasExpiredApprovals || hasInsufficientBalance
               }
-              className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+              className="flex-1 bg-[#2d5a4f] text-white py-2.5 rounded-lg font-medium hover:bg-[#234740] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {loading && <Loader2 size={14} className="animate-spin" />}
               {loading ? 'Creating...' : 'Create Batch'}

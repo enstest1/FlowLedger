@@ -88,7 +88,7 @@ export function BatchExecuteButton({ batchId, slug }: Props) {
   return (
     <button
       onClick={() => setShowConfirm(true)}
-      className="flex items-center gap-1.5 bg-indigo-600 text-white px-5 py-2.5 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+      className="flex items-center gap-1.5 bg-[#2d5a4f] text-white px-5 py-2.5 rounded-lg font-medium hover:bg-[#234740] transition-colors"
     >
       <Zap size={16} />
       Execute Batch
