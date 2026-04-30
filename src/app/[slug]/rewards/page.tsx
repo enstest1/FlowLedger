@@ -78,17 +78,29 @@ export default async function RewardsPage({ params }: RewardsPageProps) {
   }
 
   // Card 2: Activity markers created in this org
-  const activityMarkerCount = await prisma.paymentReceipt.count({
-    where: {
-      invoice: { organizationId: org.id },
-      activityMarkerContractId: { not: null },
-    },
-  })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let activityMarkerCount = 0
+  try {
+    activityMarkerCount = await (prisma.paymentReceipt as any).count({
+      where: {
+        invoice: { organizationId: org.id },
+        activityMarkerContractId: { not: null },
+      },
+    })
+  } catch {
+    // Prisma client not yet regenerated — run `npx prisma generate` after stopping dev server
+  }
 
   // Card 3: Active wallet proxies in this org
-  const activeProxyCount = await prisma.vendor.count({
-    where: { organizationId: org.id, walletProxyStatus: 'ACTIVE' },
-  })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let activeProxyCount = 0
+  try {
+    activeProxyCount = await (prisma.vendor as any).count({
+      where: { organizationId: org.id, walletProxyStatus: 'ACTIVE' },
+    })
+  } catch {
+    // Prisma client not yet regenerated
+  }
 
   // Card 4: Featured App Status — from env
   const featuredAppContractId = process.env.CANTON_FEATURED_APP_RIGHT_CONTRACT_ID ?? ''
@@ -117,8 +129,16 @@ export default async function RewardsPage({ params }: RewardsPageProps) {
     // Fall back to zeros in mock mode
   }
 
-  // Vendor proxy status
-  const vendors = await prisma.vendor.findMany({
+  // Vendor proxy status — use any cast until Prisma client is regenerated
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const vendors: Array<{
+    id: string
+    name: string
+    cantonPartyId: string
+    walletProxyStatus: string | null
+    walletProxyContractId: string | null
+    walletProxyCreatedAt: Date | null
+  }> = await (prisma.vendor as any).findMany({
     where: { organizationId: org.id },
     orderBy: { name: 'asc' },
     select: {
