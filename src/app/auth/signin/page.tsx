@@ -148,13 +148,13 @@ export default function SignInPage() {
             </p>
             <div className="flex gap-2">
               <a
-                href="/api/dev/signin?email=admin@moltmoon.io"
+                href="/api/dev/signin?email=admin@flowledger.io"
                 className="flex-1 text-center text-xs bg-indigo-50 text-indigo-700 py-2.5 rounded-md hover:bg-indigo-100 transition-colors font-bold border border-indigo-100"
               >
                 Admin
               </a>
               <a
-                href="/api/dev/signin?email=approver@moltmoon.io"
+                href="/api/dev/signin?email=approver@flowledger.io"
                 className="flex-1 text-center text-xs bg-zinc-100 text-zinc-600 py-2.5 rounded-md hover:bg-zinc-200 transition-colors font-bold border border-zinc-200"
               >
                 Approver

@@ -9,31 +9,31 @@ async function main() {
 
   // Create demo users
   const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@moltmoon.io' },
+    where: { email: 'admin@flowledger.io' },
     update: {},
     create: {
-      email: 'admin@moltmoon.io',
+      email: 'admin@flowledger.io',
       name: 'Alex Admin',
       cantonPartyId: 'alex::' + 'a'.repeat(64),
     },
   })
 
   const approver = await prisma.user.upsert({
-    where: { email: 'approver@moltmoon.io' },
+    where: { email: 'approver@flowledger.io' },
     update: {},
     create: {
-      email: 'approver@moltmoon.io',
+      email: 'approver@flowledger.io',
       name: 'Sam Approver',
     },
   })
 
   // Create org
   const org = await prisma.organization.upsert({
-    where: { slug: 'moltmoon' },
+    where: { slug: 'flowledger' },
     update: {},
     create: {
-      name: 'MoltMoon Labs',
-      slug: 'moltmoon',
+      name: 'FlowLedger Demo',
+      slug: 'flowledger',
       treasuryPartyId: 'treasury::' + 'b'.repeat(64),
       defaultAsset: 'USDCX',
       approvalThreshold: 1000,
@@ -356,9 +356,9 @@ async function main() {
   }
 
   console.log('\n========== SEED COMPLETE ==========')
-  console.log('Demo login: admin@moltmoon.io')
-  console.log('Dev sign-in URL: http://localhost:3000/api/dev/signin?email=admin@moltmoon.io')
-  console.log('Org: http://localhost:3000/moltmoon/dashboard')
+  console.log('Demo login: admin@flowledger.io')
+  console.log('Dev sign-in URL: http://localhost:3000/api/dev/signin?email=admin@flowledger.io')
+  console.log('Org: http://localhost:3000/flowledger/dashboard')
   console.log('===================================\n')
 }
 

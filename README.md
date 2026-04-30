@@ -195,10 +195,10 @@ npm run dev
 Email is not configured by default. Use the dev bypass instead:
 
 ```
-http://localhost:3000/api/dev/signin?email=admin@moltmoon.io
+http://localhost:3000/api/dev/signin?email=admin@flowledger.io
 ```
 
-Or click **Enter as Admin** / **Enter as Approver** on the sign-in page — both go straight to the demo org at `/moltmoon/dashboard`.
+Or click **Enter as Admin** / **Enter as Approver** on the sign-in page — both go straight to the demo org at `/flowledger/dashboard`.
 
 Test onboarding (new user with no org):
 ```
@@ -279,9 +279,9 @@ Example: `alice-chen::1a2b3c4d5e6f7890abcdef...`
 
 | Entity | Details |
 |---|---|
-| **Admin** | `admin@moltmoon.io` — ADMIN role |
-| **Approver** | `approver@moltmoon.io` — APPROVER role |
-| **Org** | MoltMoon Labs · slug: `moltmoon` |
+| **Admin** | `admin@flowledger.io` — ADMIN role |
+| **Approver** | `approver@flowledger.io` — APPROVER role |
+| **Org** | FlowLedger Demo · slug: `flowledger` |
 | **Vendors** | Alice Chen, Bob Martinez, Carol White (**expired** pre-approval), David Kim, Eva Santos |
 | **Invoices** | 8 across all statuses: DRAFT, PENDING\_APPROVAL, APPROVED ×3, PAID, REJECTED |
 | **Batch** | 1 executed batch with mock Canton UpdateID in the receipt |
