@@ -38,7 +38,7 @@ export function Sidebar({ slug, orgName, role }: SidebarProps) {
   ]
 
   return (
-    <aside className="w-56 bg-white border-r border-zinc-200 flex flex-col min-h-screen shrink-0">
+    <aside className="w-[200px] bg-white border-r border-zinc-200 flex flex-col min-h-screen shrink-0">
       {/* Brand header */}
       <div className="px-4 py-4 border-b border-zinc-200">
         <p className="text-[10px] tracking-widest uppercase text-zinc-400 mb-0.5">
@@ -77,15 +77,11 @@ export function Sidebar({ slug, orgName, role }: SidebarProps) {
       </nav>
 
       {/* Globe + footer */}
-      <div className="border-t border-zinc-100">
-        <div className="flex justify-center py-3">
-          <GlobeLoader />
-        </div>
-        <div className="px-4 pb-3">
-          <p className="text-[10px] text-zinc-400 tracking-wider uppercase text-center">
-            Canton Network
-          </p>
-        </div>
+      <div className="border-t border-zinc-100 pt-3 pb-2 flex flex-col items-center gap-2">
+        <GlobeLoader />
+        <p className="text-[10px] text-zinc-400 tracking-wider uppercase pb-1">
+          Canton Network
+        </p>
       </div>
     </aside>
   )
