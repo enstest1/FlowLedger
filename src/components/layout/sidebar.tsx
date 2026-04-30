@@ -12,6 +12,7 @@ import {
   Settings,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { GlobeLoader } from '@/components/globe-loader'
 
 interface SidebarProps {
   slug: string
@@ -75,11 +76,16 @@ export function Sidebar({ slug, orgName, role }: SidebarProps) {
         })}
       </nav>
 
-      {/* Footer */}
-      <div className="px-4 py-3 border-t border-zinc-100">
-        <p className="text-[10px] text-zinc-400 tracking-wider uppercase">
-          Canton Network
-        </p>
+      {/* Globe + footer */}
+      <div className="border-t border-zinc-100">
+        <div className="flex justify-center py-3">
+          <GlobeLoader />
+        </div>
+        <div className="px-4 pb-3">
+          <p className="text-[10px] text-zinc-400 tracking-wider uppercase text-center">
+            Canton Network
+          </p>
+        </div>
       </div>
     </aside>
   )
