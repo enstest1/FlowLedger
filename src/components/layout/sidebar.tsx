@@ -10,7 +10,6 @@ import {
   Receipt,
   Download,
   Settings,
-  Building2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -29,13 +28,7 @@ export function Sidebar({ slug, orgName, role }: SidebarProps) {
     { href: `${base}/vendors`, label: 'Vendors', icon: Users },
     { href: `${base}/invoices`, label: 'Invoices', icon: FileText },
     ...(role === 'APPROVER' || role === 'ADMIN'
-      ? [
-          {
-            href: `${base}/approvals`,
-            label: 'Approvals',
-            icon: CheckSquare,
-          },
-        ]
+      ? [{ href: `${base}/approvals`, label: 'Approvals', icon: CheckSquare }]
       : []),
     { href: `${base}/batches`, label: 'Payroll Batches', icon: Package },
     { href: `${base}/receipts`, label: 'Receipts', icon: Receipt },
@@ -44,21 +37,19 @@ export function Sidebar({ slug, orgName, role }: SidebarProps) {
   ]
 
   return (
-    <aside className="w-60 bg-white border-r border-zinc-200 flex flex-col min-h-screen">
-      <div className="p-4 border-b border-zinc-200">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-            <Building2 size={16} className="text-white" />
-          </div>
-          <div>
-            <p className="text-xs text-zinc-500">FlowLedger</p>
-            <p className="text-sm font-medium text-zinc-900 truncate max-w-[140px]">
-              {orgName}
-            </p>
-          </div>
-        </div>
+    <aside className="w-56 bg-white border-r border-zinc-200 flex flex-col min-h-screen shrink-0">
+      {/* Brand header */}
+      <div className="px-4 py-4 border-b border-zinc-200">
+        <p className="text-[10px] tracking-widest uppercase text-zinc-400 mb-0.5">
+          FlowLedger
+        </p>
+        <p className="text-sm font-bold text-zinc-900 truncate leading-tight">
+          {orgName}
+        </p>
       </div>
-      <nav className="flex-1 p-2">
+
+      {/* Navigation — Fitts's Law: full-width targets with generous py */}
+      <nav className="flex-1 py-2">
         {navItems.map((item) => {
           const Icon = item.icon
           const active =
@@ -68,21 +59,26 @@ export function Sidebar({ slug, orgName, role }: SidebarProps) {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors mb-0.5',
+                'flex items-center gap-2.5 mx-2 px-3 py-2.5 rounded-md text-sm transition-colors mb-px',
                 active
-                  ? 'bg-indigo-50 text-indigo-700 font-medium'
-                  : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900'
+                  ? 'bg-indigo-50 text-indigo-700 font-bold'
+                  : 'text-zinc-500 hover:bg-zinc-50 hover:text-zinc-800'
               )}
             >
-              <Icon size={16} />
+              <Icon
+                size={15}
+                className={active ? 'text-indigo-600' : 'text-zinc-400'}
+              />
               {item.label}
             </Link>
           )
         })}
       </nav>
-      <div className="p-4 border-t border-zinc-200">
-        <p className="text-xs text-zinc-400 text-center">
-          Powered by Canton Network
+
+      {/* Footer */}
+      <div className="px-4 py-3 border-t border-zinc-100">
+        <p className="text-[10px] text-zinc-400 tracking-wider uppercase">
+          Canton Network
         </p>
       </div>
     </aside>

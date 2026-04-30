@@ -31,18 +31,18 @@ export default async function InvoicesPage({
   const canCreate = ['ADMIN', 'TREASURY'].includes(membership.role)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Invoices</h1>
-          <p className="text-zinc-500 text-sm mt-0.5">
+          <h1 className="text-xl font-bold text-zinc-900">Invoices</h1>
+          <p className="text-xs text-zinc-400 mt-0.5">
             {invoices.length} invoice{invoices.length !== 1 ? 's' : ''}
           </p>
         </div>
         {canCreate && (
           <Link
             href={`/${slug}/invoices/new`}
-            className="flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+            className="flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2.5 rounded-md text-sm font-bold hover:bg-indigo-700 transition-colors"
           >
             <Plus size={14} />
             New Invoice
@@ -51,18 +51,18 @@ export default async function InvoicesPage({
       </div>
 
       {invoices.length === 0 ? (
-        <div className="bg-white rounded-xl border border-zinc-200 p-16 text-center">
-          <div className="w-12 h-12 bg-zinc-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FileText size={20} className="text-zinc-400" />
+        <div className="bg-white rounded-md border border-zinc-200 p-16 text-center">
+          <div className="w-10 h-10 bg-zinc-100 rounded flex items-center justify-center mx-auto mb-4">
+            <FileText size={18} className="text-zinc-400" />
           </div>
-          <h3 className="font-semibold text-zinc-900 mb-2">No invoices yet</h3>
-          <p className="text-sm text-zinc-500 mb-4">
+          <h3 className="font-bold text-zinc-900 mb-1 text-sm">No invoices yet</h3>
+          <p className="text-xs text-zinc-500 mb-5">
             Create your first invoice to start the payment workflow.
           </p>
           {canCreate && (
             <Link
               href={`/${slug}/invoices/new`}
-              className="inline-flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+              className="inline-flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2.5 rounded-md text-sm font-bold hover:bg-indigo-700 transition-colors"
             >
               <Plus size={14} />
               New Invoice
@@ -70,72 +70,73 @@ export default async function InvoicesPage({
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-xl border border-zinc-200 overflow-hidden">
+        <div className="bg-white rounded-md border border-zinc-200 overflow-hidden">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-zinc-100">
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+              <tr className="border-b border-zinc-100 bg-zinc-50">
+                <th className="text-left px-4 py-3 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
                   Invoice
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                <th className="text-left px-4 py-3 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
                   Vendor
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                <th className="text-right px-4 py-3 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
                   Amount
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
+                <th className="text-left px-4 py-3 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
                   Status
                 </th>
-                <th className="text-left px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
-                  Due Date
+                <th className="text-left px-4 py-3 text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+                  Due
                 </th>
-                <th className="text-right px-4 py-3 text-xs font-medium text-zinc-500 uppercase tracking-wider">
-                  Actions
-                </th>
+                <th className="px-4 py-3" />
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-zinc-50">
               {invoices.map((inv) => {
                 const isOverdue =
                   new Date(inv.dueDate) < new Date() && inv.status !== 'PAID'
                 return (
                   <tr
                     key={inv.id}
-                    className="border-b border-zinc-50 hover:bg-zinc-50 transition-colors"
+                    className="hover:bg-zinc-50 transition-colors"
                   >
                     <td className="px-4 py-3">
-                      <div>
-                        <p className="text-sm font-medium text-zinc-900">
-                          {inv.invoiceNumber}
-                        </p>
-                        <p className="text-xs text-zinc-400 max-w-xs truncate">
+                      <p className="text-xs font-bold text-zinc-900">
+                        {inv.invoiceNumber}
+                      </p>
+                      {inv.description && (
+                        <p className="text-[10px] text-zinc-400 max-w-xs truncate mt-0.5">
                           {inv.description}
                         </p>
-                      </div>
+                      )}
                     </td>
-                    <td className="px-4 py-3 text-sm text-zinc-700">
+                    <td className="px-4 py-3 text-xs text-zinc-600">
                       {inv.vendor.name}
                     </td>
-                    <td className="px-4 py-3 text-sm font-medium text-zinc-900">
+                    {/* Numbers right-aligned — Jakob's Law: tabular data convention */}
+                    <td className="px-4 py-3 text-xs font-bold text-zinc-900 text-right tabular-nums">
                       {formatAmount(inv.amount, inv.assetId)}
                     </td>
                     <td className="px-4 py-3">
                       <StatusBadge status={inv.status} />
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="px-4 py-3 tabular-nums">
                       <span
-                        className={`text-sm ${isOverdue ? 'text-red-600 font-medium' : 'text-zinc-500'}`}
+                        className={`text-xs font-bold ${isOverdue ? 'text-red-600' : 'text-zinc-500'}`}
                       >
                         {format(new Date(inv.dueDate), 'MMM d, yyyy')}
-                        {isOverdue && ' (Overdue)'}
+                        {isOverdue && (
+                          <span className="ml-1 text-[10px] text-red-500">OVERDUE</span>
+                        )}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-right">
                       <Link
                         href={`/${slug}/invoices/${inv.id}`}
-                        className="text-xs text-indigo-600 hover:text-indigo-700 font-medium"
+                        className="text-xs text-indigo-600 hover:text-indigo-700 font-bold"
                       >
-                        View
+                        View →
                       </Link>
                     </td>
                   </tr>

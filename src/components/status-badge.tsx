@@ -1,4 +1,4 @@
-import { getStatusColor } from '@/lib/utils'
+import { getStatusColor, getStatusDot } from '@/lib/utils'
 
 interface StatusBadgeProps {
   status: string
@@ -8,7 +8,7 @@ interface StatusBadgeProps {
 const statusLabels: Record<string, string> = {
   DRAFT: 'Draft',
   SUBMITTED: 'Submitted',
-  PENDING_APPROVAL: 'Pending Approval',
+  PENDING_APPROVAL: 'Pending',
   APPROVED: 'Approved',
   REJECTED: 'Rejected',
   IN_BATCH: 'In Batch',
@@ -27,11 +27,15 @@ const statusLabels: Record<string, string> = {
 
 export function StatusBadge({ status, className = '' }: StatusBadgeProps) {
   const colorClass = getStatusColor(status)
+  const dotClass = getStatusDot(status)
   const label = statusLabels[status] ?? status
+
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${colorClass} ${className}`}
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-bold tracking-wide ${colorClass} ${className}`}
     >
+      {/* Von Restorff: colored dot for instant status recognition before reading */}
+      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotClass}`} />
       {label}
     </span>
   )

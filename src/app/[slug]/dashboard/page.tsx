@@ -66,7 +66,6 @@ export default async function DashboardPage({
       }),
     ])
 
-  // Get treasury balance from Canton adapter
   const adapter = getCantonAdapter()
   let balance = 0
   try {
@@ -81,12 +80,13 @@ export default async function DashboardPage({
 
   const stats = [
     {
-      label: 'Pending Invoices',
+      label: 'Pending',
       value: pendingInvoices.length.toString(),
       sub: formatAmount(pendingTotal, org.defaultAsset),
       icon: FileText,
       color: 'text-amber-600',
       bg: 'bg-amber-50',
+      border: 'border-amber-100',
     },
     {
       label: 'Awaiting Approval',
@@ -95,6 +95,7 @@ export default async function DashboardPage({
       icon: CheckSquare,
       color: 'text-indigo-600',
       bg: 'bg-indigo-50',
+      border: 'border-indigo-100',
     },
     {
       label: 'Paid This Month',
@@ -103,96 +104,107 @@ export default async function DashboardPage({
       icon: TrendingUp,
       color: 'text-emerald-600',
       bg: 'bg-emerald-50',
+      border: 'border-emerald-100',
     },
     {
       label: 'Treasury Balance',
       value: formatAmount(balance, org.defaultAsset),
-      sub: 'Available to pay',
+      sub: 'Available',
       icon: Wallet,
       color: 'text-sky-600',
       bg: 'bg-sky-50',
+      border: 'border-sky-100',
     },
   ]
 
+  const auditLabels: Record<string, string> = {
+    ORG_CREATED: 'Organization created',
+    VENDOR_ADDED: 'Vendor added',
+    INVOICE_SUBMITTED: 'Invoice submitted',
+    INVOICE_APPROVED: 'Invoice approved',
+    INVOICE_REJECTED: 'Invoice rejected',
+    INVOICE_CANCELLED: 'Invoice cancelled',
+    BATCH_CREATED: 'Batch created',
+    BATCH_EXECUTED: 'Batch executed',
+    VENDOR_PRE_APPROVAL_RENEWED: 'Pre-approval renewed',
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
+      {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">Dashboard</h1>
-          <p className="text-zinc-500 text-sm mt-0.5">
-            Welcome back,{' '}
+          <h1 className="text-xl font-bold text-zinc-900">Dashboard</h1>
+          <p className="text-xs text-zinc-400 mt-0.5">
             {session.user.name || session.user.email?.split('@')[0]}
           </p>
         </div>
-        <div className="flex gap-2">
-          <Link
-            href={`/${slug}/invoices/new`}
-            className="flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
-          >
-            <Plus size={14} />
-            New Invoice
-          </Link>
-        </div>
+        {/* Von Restorff + Fitts's Law: primary CTA is visually dominant */}
+        <Link
+          href={`/${slug}/invoices/new`}
+          className="flex items-center gap-1.5 bg-indigo-600 text-white px-4 py-2.5 rounded-md text-sm font-bold hover:bg-indigo-700 transition-colors"
+        >
+          <Plus size={14} />
+          New Invoice
+        </Link>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Stats — Miller's Law: exactly 4 chunks, each bounded (Law of Common Region) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {stats.map((s) => {
           const Icon = s.icon
           return (
             <div
               key={s.label}
-              className="bg-white rounded-xl border border-zinc-200 p-5"
+              className={`bg-white rounded-md border ${s.border} p-4`}
             >
-              <div className="flex items-start justify-between mb-3">
-                <div className={`w-9 h-9 ${s.bg} rounded-lg flex items-center justify-center`}>
-                  <Icon size={18} className={s.color} />
-                </div>
+              <div className={`w-8 h-8 ${s.bg} rounded flex items-center justify-center mb-3`}>
+                <Icon size={16} className={s.color} />
               </div>
-              <p className="text-2xl font-bold text-zinc-900">{s.value}</p>
-              <p className="text-xs text-zinc-500 mt-0.5">{s.label}</p>
-              <p className="text-xs text-zinc-400 mt-1">{s.sub}</p>
+              <p className="text-xl font-bold text-zinc-900 leading-none">{s.value}</p>
+              <p className="text-[10px] text-zinc-400 mt-1 uppercase tracking-wider">{s.label}</p>
+              <p className="text-xs text-zinc-500 mt-1">{s.sub}</p>
             </div>
           )
         })}
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      {/* Panels — Law of Common Region: two clearly bounded panels */}
+      <div className="grid lg:grid-cols-2 gap-4">
         {/* Upcoming Due Dates */}
-        <div className="bg-white rounded-xl border border-zinc-200 p-5">
-          <h2 className="font-semibold text-zinc-900 mb-4">Upcoming Due Dates</h2>
+        <div className="bg-white rounded-md border border-zinc-200 p-5">
+          <h2 className="text-sm font-bold text-zinc-900 mb-4">Upcoming Due</h2>
           {upcomingDue.length === 0 ? (
-            <p className="text-sm text-zinc-400 text-center py-8">
+            <p className="text-xs text-zinc-400 text-center py-8">
               No invoices due in the next 14 days
             </p>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-1">
               {upcomingDue.map((inv) => {
                 const isOverdue = new Date(inv.dueDate) < now
                 return (
+                  /* Fitts's Law: full-row click target */
                   <Link
                     key={inv.id}
                     href={`/${slug}/invoices/${inv.id}`}
-                    className="flex items-center justify-between p-3 rounded-lg hover:bg-zinc-50 transition-colors"
+                    className="flex items-center justify-between px-2 py-2.5 rounded hover:bg-zinc-50 transition-colors group"
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 min-w-0">
                       {isOverdue && (
-                        <AlertCircle size={14} className="text-red-500 shrink-0" />
+                        <AlertCircle size={12} className="text-red-500 shrink-0" />
                       )}
-                      <div>
-                        <p className="text-sm font-medium text-zinc-900">
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold text-zinc-900 truncate">
                           {inv.invoiceNumber}
                         </p>
-                        <p className="text-xs text-zinc-400">{inv.vendor.name}</p>
+                        <p className="text-[10px] text-zinc-400 truncate">{inv.vendor.name}</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="text-sm font-medium text-zinc-900">
+                    <div className="text-right shrink-0 ml-3">
+                      <p className="text-xs font-bold text-zinc-900">
                         {formatAmount(inv.amount, inv.assetId)}
                       </p>
-                      <p
-                        className={`text-xs ${isOverdue ? 'text-red-500 font-medium' : 'text-zinc-400'}`}
-                      >
+                      <p className={`text-[10px] font-bold ${isOverdue ? 'text-red-500' : 'text-zinc-400'}`}>
                         {isOverdue ? 'OVERDUE' : format(new Date(inv.dueDate), 'MMM d')}
                       </p>
                     </div>
@@ -204,52 +216,38 @@ export default async function DashboardPage({
         </div>
 
         {/* Recent Activity */}
-        <div className="bg-white rounded-xl border border-zinc-200 p-5">
-          <h2 className="font-semibold text-zinc-900 mb-4">Recent Activity</h2>
+        <div className="bg-white rounded-md border border-zinc-200 p-5">
+          <h2 className="text-sm font-bold text-zinc-900 mb-4">Recent Activity</h2>
           {recentAuditEvents.length === 0 ? (
-            <p className="text-sm text-zinc-400 text-center py-8">
-              No activity yet
-            </p>
+            <p className="text-xs text-zinc-400 text-center py-8">No activity yet</p>
           ) : (
-            <div className="space-y-2">
-              {recentAuditEvents.map((event) => {
-                const labels: Record<string, string> = {
-                  ORG_CREATED: 'Organization created',
-                  VENDOR_ADDED: 'Vendor added',
-                  INVOICE_SUBMITTED: 'Invoice submitted',
-                  INVOICE_APPROVED: 'Invoice approved',
-                  INVOICE_REJECTED: 'Invoice rejected',
-                  INVOICE_CANCELLED: 'Invoice cancelled',
-                  BATCH_CREATED: 'Batch created',
-                  BATCH_EXECUTED: 'Batch executed',
-                  VENDOR_PRE_APPROVAL_RENEWED: 'Pre-approval renewed',
-                }
-                return (
-                  <div key={event.id} className="flex items-center gap-3 py-2">
-                    <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full shrink-0" />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-zinc-700 truncate">
-                        {labels[event.eventType] ?? event.eventType}
-                      </p>
-                      <p className="text-xs text-zinc-400">
-                        {event.actor?.name || event.actor?.email || 'System'} ·{' '}
-                        {format(new Date(event.createdAt), 'MMM d, h:mm a')}
-                      </p>
-                    </div>
-                    <StatusBadge
-                      status={
-                        event.eventType.includes('APPROVED')
-                          ? 'APPROVED'
-                          : event.eventType.includes('REJECTED')
-                          ? 'REJECTED'
-                          : event.eventType.includes('PAID')
-                          ? 'PAID'
-                          : 'ACTIVE'
-                      }
-                    />
+            <div className="space-y-1">
+              {recentAuditEvents.map((event) => (
+                <div key={event.id} className="flex items-center gap-3 px-2 py-2.5">
+                  <div className="w-1.5 h-1.5 bg-indigo-400 rounded-full shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-zinc-700 truncate">
+                      {auditLabels[event.eventType] ?? event.eventType}
+                    </p>
+                    <p className="text-[10px] text-zinc-400 truncate">
+                      {event.actor?.name || event.actor?.email || 'System'}
+                      {' · '}
+                      {format(new Date(event.createdAt), 'MMM d, h:mm a')}
+                    </p>
                   </div>
-                )
-              })}
+                  <StatusBadge
+                    status={
+                      event.eventType.includes('APPROVED')
+                        ? 'APPROVED'
+                        : event.eventType.includes('REJECTED')
+                        ? 'REJECTED'
+                        : event.eventType.includes('PAID')
+                        ? 'PAID'
+                        : 'ACTIVE'
+                    }
+                  />
+                </div>
+              ))}
             </div>
           )}
         </div>
