@@ -151,8 +151,8 @@ export default function SignInPage() {
         </div>
 
         <p className="text-center text-xs text-zinc-400 mt-4">
-          <Link href="/" className="hover:text-zinc-600 transition-colors">
-            ← Back to home
+          <Link href="/intro" className="hover:text-zinc-600 transition-colors">
+            ← Watch intro
           </Link>
         </p>
       </div>

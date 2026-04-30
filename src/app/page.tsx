@@ -14,7 +14,7 @@ export default function LandingPage() {
         </div>
         {/* Fitts's Law: primary CTA is large and obvious */}
         <Link
-          href="/auth/signin"
+          href="/intro"
           className="bg-indigo-600 text-white px-4 py-2 rounded-md text-sm font-bold hover:bg-indigo-700 transition-colors"
         >
           Sign In
@@ -39,13 +39,13 @@ export default function LandingPage() {
         {/* Fitts's Law: two clear CTAs, primary vs secondary clearly differentiated */}
         <div className="flex items-center justify-center gap-3">
           <Link
-            href="/auth/signin"
+            href="/intro"
             className="bg-indigo-600 text-white px-6 py-3 rounded-md font-bold hover:bg-indigo-700 transition-colors"
           >
             Get Started
           </Link>
           <Link
-            href="/auth/signin"
+            href="/intro"
             className="border border-zinc-200 text-zinc-700 px-6 py-3 rounded-md font-bold hover:bg-zinc-50 transition-colors"
           >
             Sign In
