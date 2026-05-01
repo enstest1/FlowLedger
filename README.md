@@ -27,6 +27,7 @@ FlowLedger is a B2B SaaS tool for Canton ecosystem teams — validators, node op
 - [Stage 3 — MainNet](#stage-3--mainnet)
 - [Earning CC Rewards](#earning-cc-rewards)
 - [Startup Checks](#startup-checks)
+- [Launch Checklist — What To Do Right Now](#launch-checklist--what-to-do-right-now)
 - [What Is Not Built Yet](#what-is-not-built-yet)
 - [Key Canton Resources](#key-canton-resources)
 
@@ -788,6 +789,81 @@ If `CANTON_NETWORK_ENV=mock`, checks are skipped (`SKIP` status) since there is 
 
 ---
 
+## Launch Checklist — What To Do Right Now
+
+The app is fully built. These are the steps to go from code to production earnings, in priority order.
+
+### 1. Deploy to Vercel — do this today (30 min)
+
+You need a live URL before you can do anything else that matters. The Featured App application asks for it. NaaS providers want to see it. It also forces you to set up Postgres and email properly.
+
+```bash
+npm i -g vercel
+vercel
+```
+
+In the Vercel dashboard, set these environment variables:
+
+| Variable | Where to get it |
+|---|---|
+| `DATABASE_URL` | Vercel Postgres add-on (one click) or Neon/Supabase free tier |
+| `NEXTAUTH_SECRET` | `openssl rand -base64 32` |
+| `NEXTAUTH_URL` | Your Vercel deployment URL |
+| `EMAIL_SERVER_*` | Resend.com — sign up, get API key, 10 minutes |
+| `FLOWLEDGER_ADMIN_EMAILS` | Your real email address |
+| `CANTON_NETWORK_ENV` | Leave as `mock` until NaaS credentials arrive |
+
+After setting `DATABASE_URL` to Postgres, run:
+```bash
+npx prisma migrate deploy
+```
+
+### 2. Apply for Featured App status — do this this week
+
+Once you have a live URL, apply at **canton.foundation/featured-app-request**. The committee review takes approximately 2 weeks, so submit as early as possible. You do not need to be on MainNet yet — you are applying for the right, not activating it.
+
+The application asks for your code repo (GitHub is ready), your Canton party ID (use a placeholder), and how you use Activity Markers (the Daml contracts and rewards spec cover this).
+
+### 3. Wait for NaaS credentials in parallel
+
+While Vercel is deploying and the Featured App application is in review, Launchnodes or Proof Group sends you credentials. When they arrive, it is literally 5 env vars and a redeploy:
+
+```bash
+CANTON_NETWORK_ENV="devnet"
+CANTON_VALIDATOR_URL="<from provider>"
+CANTON_LEDGER_URL="<from provider>"
+CANTON_AUTH_MODE="client-credentials"
+CANTON_AUTH_TOKEN_URL="<from provider>"
+CANTON_AUTH_CLIENT_ID="<from provider>"
+CANTON_AUTH_CLIENT_SECRET="<from provider>"
+```
+
+Run the DevNet smoke test checklist, confirm receipts show real UpdateIDs, then flip to `mainnet` with the MainNet credentials.
+
+### 4. Set CANTON_VERIFY_SIGNATURES=true before real users
+
+Once on MainNet, enable wallet signature verification so party ID ownership is cryptographically proven:
+
+```bash
+CANTON_VERIFY_SIGNATURES="true"
+```
+
+### 5. Set CANTON_DAML_PACKAGE_ID after uploading the DAR
+
+```bash
+cd daml
+daml build
+daml ledger upload-dar --host <validator-host> --port 3901 .daml/dist/flowledger-1.0.0.dar
+# Copy the package ID from the build output
+CANTON_DAML_PACKAGE_ID="<hash from daml build>"
+```
+
+### Pre-approval monitoring (automatic on Vercel)
+
+`vercel.json` configures a daily cron at 09:00 UTC that hits `/api/cron/preapprovals`. It auto-marks expired vendors and logs a warning for any expiring within 14 days. Set `CRON_SECRET` in Vercel to protect the endpoint.
+
+---
+
 ## What Is Not Built Yet
 
 Intentionally out of scope for v1:
@@ -795,19 +871,15 @@ Intentionally out of scope for v1:
 | Feature | Notes |
 |---|---|
 | **Vendor portal** (`/vendor/*`) | Vendor dashboard, vendor invoice submission, vendor receipt view |
-| **Canton wallet signature verification** | `/api/auth/canton-wallet` currently trusts party ID format only — add `verifyCantonSignature()` before production |
-| **Daml contract bodies** | `createInvoiceContract`, `createBatchContract`, `createReceiptContract` in `devnet-adapter.ts` have TODO stubs — implement after Daml package is deployed |
-| **Pre-approval expiry cron job** | Currently checked at batch time — needs a scheduled job for proactive monitoring and alerts |
 | **File attachment storage** | Invoice attachment upload UI exists; S3/R2 backend not configured |
 | **PDF receipt export** | Download PDF button present; browser print → PDF works as a workaround |
 | **Shareable receipt links** | Read-only public receipt URL not implemented |
 | **Real-time batch progress** | Uses `router.refresh()` polling — upgrade to SSE for live updates |
-| **RewardSummary population** | `RewardSummary` model exists but is not yet populated automatically — needs a cron job or batch-end hook |
+| **RewardSummary population** | `RewardSummary` model exists but not yet auto-populated — add a batch-end hook once on MainNet |
 | **Recurring payment schedules** | v2 |
 | **Payroll tax engine** | v2 |
 | **KYC / AML** | v2 |
 | **Mobile app** | v2 |
-| **Super-admin panel** (`/admin`) | Route placeholder exists, not implemented |
 
 ---
 

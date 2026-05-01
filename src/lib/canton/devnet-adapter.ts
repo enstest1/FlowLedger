@@ -333,62 +333,153 @@ export class DevNetCantonAdapter implements CantonAdapter {
 
   // ── Daml Contracts ────────────────────────────────────────────────────────
   //
-  // These create our custom Daml templates (Invoice, PayrollBatch, etc.).
-  // They require the FlowLedger Daml package to be compiled and uploaded
-  // to your validator node first:
+  // Require the FlowLedger DAR to be uploaded first:
+  //   cd daml && daml build
+  //   daml ledger upload-dar --host <validator-host> --port 3901 .daml/dist/flowledger-1.0.0.dar
   //
-  //   cd daml && daml build && daml ledger upload-dar --host localhost --port 3901
-  //
-  // Until the Daml package is deployed, these return synthetic contract IDs.
-  // The critical on-chain operation is executeTransfer() above — that generates
-  // the real Canton UpdateID. The Daml contracts add workflow structure on-chain.
+  // Then set CANTON_DAML_PACKAGE_ID to the hash printed by daml build.
+  // Without it these fall back to placeholder IDs — the transfer (UpdateID) still works.
+
+  private damlPackageId(): string | null {
+    return process.env.CANTON_DAML_PACKAGE_ID ?? null
+  }
+
+  private async submitCommand<T>(body: unknown): Promise<T> {
+    return ledgerPost<T>('/v2/commands/submit-and-wait', body)
+  }
+
+  private extractContractId(res: unknown): string {
+    // Ledger API v2: contract ID is in the first created event of the transaction tree
+    const r = res as {
+      transaction?: { events?: Array<{ created?: { contractId?: string } }> }
+      transactionTree?: { eventsById?: Record<string, { created?: { contractId?: string } }> }
+    }
+    const events = r.transaction?.events ?? Object.values(r.transactionTree?.eventsById ?? {})
+    for (const ev of events) {
+      if (ev.created?.contractId) return ev.created.contractId
+    }
+    return randomUUID()
+  }
 
   async createInvoiceContract(input: CreateInvoiceInput): Promise<ContractResult> {
-    // TODO: submit CreateCommand for FlowLedger.Invoice template to Ledger API v2
-    // POST /v2/commands/submit-and-wait
-    // {
-    //   "commands": [{
-    //     "CreateCommand": {
-    //       "templateId": "<your-package-id>:FlowLedger.Invoice:Invoice",
-    //       "createArguments": {
-    //         "invoiceId": input.invoiceId,
-    //         "orgId": input.orgId,
-    //         "vendorParty": input.vendorPartyId,
-    //         "treasuryParty": input.treasuryPartyId,
-    //         "amount": input.amount,
-    //         "assetId": input.assetId,
-    //         "description": input.description
-    //       }
-    //     }
-    //   }],
-    //   "actAs": [input.treasuryPartyId],
-    //   "readAs": [input.vendorPartyId],
-    //   "applicationId": "FlowLedger",
-    //   "commandId": input.invoiceId
-    // }
-    return { contractId: `#pending-daml-deploy:invoice:${input.invoiceId}`, status: 'CREATED' }
+    const pkg = this.damlPackageId()
+    if (!pkg) return { contractId: `#pending-daml-deploy:invoice:${input.invoiceId}`, status: 'CREATED' }
+
+    const res = await this.submitCommand({
+      commands: [{
+        CreateCommand: {
+          templateId: `${pkg}:FlowLedger.Invoice:Invoice`,
+          createArguments: {
+            invoiceId: input.invoiceId,
+            orgId: input.orgId,
+            vendorParty: input.vendorPartyId,
+            treasuryParty: input.treasuryPartyId,
+            amount: input.amount.toString(),
+            assetId: input.assetId,
+            description: input.description,
+          },
+        },
+      }],
+      actAs: [input.treasuryPartyId],
+      readAs: [input.vendorPartyId],
+      applicationId: 'FlowLedger',
+      commandId: input.invoiceId,
+    })
+    return { contractId: this.extractContractId(res), status: 'CREATED' }
   }
 
   async approveInvoiceContract(input: ApproveInvoiceInput): Promise<ContractResult> {
-    // TODO: exercise Invoice.Approve choice
-    // POST /v2/commands/submit-and-wait with ExerciseCommand
-    return { contractId: `#pending-daml-deploy:approve:${randomUUID()}`, status: 'CREATED' }
+    const pkg = this.damlPackageId()
+    if (!pkg) return { contractId: `#pending-daml-deploy:approve:${randomUUID()}`, status: 'CREATED' }
+
+    const res = await this.submitCommand({
+      commands: [{
+        ExerciseCommand: {
+          templateId: `${pkg}:FlowLedger.Invoice:Invoice`,
+          contractId: input.contractId,
+          choice: 'Approve',
+          choiceArgument: { approverParty: input.approverPartyId },
+        },
+      }],
+      actAs: [input.approverPartyId],
+      applicationId: 'FlowLedger',
+      commandId: randomUUID(),
+    })
+    return { contractId: this.extractContractId(res), status: 'CREATED' }
   }
 
   async rejectInvoiceContract(input: RejectInvoiceInput): Promise<ContractResult> {
-    // TODO: exercise Invoice.Reject choice
-    return { contractId: `#pending-daml-deploy:reject:${randomUUID()}`, status: 'CREATED' }
+    const pkg = this.damlPackageId()
+    if (!pkg) return { contractId: `#pending-daml-deploy:reject:${randomUUID()}`, status: 'CREATED' }
+
+    const res = await this.submitCommand({
+      commands: [{
+        ExerciseCommand: {
+          templateId: `${pkg}:FlowLedger.Invoice:Invoice`,
+          contractId: input.contractId,
+          choice: 'Reject',
+          choiceArgument: { approverParty: input.approverPartyId, note: input.note },
+        },
+      }],
+      actAs: [input.approverPartyId],
+      applicationId: 'FlowLedger',
+      commandId: randomUUID(),
+    })
+    return { contractId: this.extractContractId(res), status: 'CREATED' }
   }
 
   async createBatchContract(input: CreateBatchInput): Promise<ContractResult> {
-    // TODO: create PayrollBatch template with featuredApp=true
-    // The FeaturedAppActivityMarker is added as a co-command in the same submission
-    return { contractId: `#pending-daml-deploy:batch:${input.batchId}`, status: 'CREATED' }
+    const pkg = this.damlPackageId()
+    if (!pkg) return { contractId: `#pending-daml-deploy:batch:${input.batchId}`, status: 'CREATED' }
+
+    const res = await this.submitCommand({
+      commands: [{
+        CreateCommand: {
+          templateId: `${pkg}:FlowLedger.PayrollBatch:PayrollBatch`,
+          createArguments: {
+            batchId: input.batchId,
+            orgId: input.orgId,
+            treasuryParty: input.treasuryPartyId,
+            invoiceIds: input.invoiceIds,
+            totalAmount: input.totalAmount.toString(),
+            assetId: input.assetId,
+            featuredApp: input.featuredApp,
+          },
+        },
+      }],
+      actAs: [input.treasuryPartyId],
+      applicationId: 'FlowLedger',
+      commandId: input.batchId,
+    })
+    return { contractId: this.extractContractId(res), status: 'CREATED' }
   }
 
   async createReceiptContract(input: CreateReceiptInput): Promise<ContractResult> {
-    // TODO: create PaymentReceipt template with the real UpdateID embedded
-    return { contractId: `#pending-daml-deploy:receipt:${input.receiptId}`, status: 'CREATED' }
+    const pkg = this.damlPackageId()
+    if (!pkg) return { contractId: `#pending-daml-deploy:receipt:${input.receiptId}`, status: 'CREATED' }
+
+    const res = await this.submitCommand({
+      commands: [{
+        CreateCommand: {
+          templateId: `${pkg}:FlowLedger.PaymentReceipt:PaymentReceipt`,
+          createArguments: {
+            receiptId: input.receiptId,
+            invoiceId: input.invoiceId,
+            batchId: input.batchId,
+            payerParty: input.payerParty,
+            payeeParty: input.payeeParty,
+            amount: input.amount.toString(),
+            assetId: input.assetId,
+            updateId: input.updateId,
+          },
+        },
+      }],
+      actAs: [input.payerParty],
+      readAs: [input.payeeParty],
+      applicationId: 'FlowLedger',
+      commandId: input.receiptId,
+    })
+    return { contractId: this.extractContractId(res), status: 'CREATED' }
   }
 
   // ── Traffic ───────────────────────────────────────────────────────────────
