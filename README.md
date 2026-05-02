@@ -791,42 +791,85 @@ If `CANTON_NETWORK_ENV=mock`, checks are skipped (`SKIP` status) since there is 
 
 ## Launch Checklist — What To Do Right Now
 
-The app is fully built. These are the steps to go from code to production earnings, in priority order.
+The app is live at [cc-flow-ledger.vercel.app](https://cc-flow-ledger.vercel.app) with Neon Postgres and demo accounts working. These are the next steps in priority order.
 
-### 1. Deploy to Vercel — do this today (30 min)
+---
 
-You need a live URL before you can do anything else that matters. The Featured App application asks for it. NaaS providers want to see it. It also forces you to set up Postgres and email properly.
+### HIGH IMPACT — Do This Now
 
-```bash
-npm i -g vercel
-vercel
+#### 1. Email auth via Resend (10 min)
+
+Right now nobody can sign up on the live site without the demo shortcuts. Resend free tier handles 100 emails/day — enough to onboard early users.
+
+1. Sign up at [resend.com](https://resend.com), get your API key
+2. Add a sending domain (or use their `onboarding@resend.dev` sandbox for testing)
+3. Set these in Vercel → Settings → Environment Variables:
+
+```
+EMAIL_SERVER_HOST=smtp.resend.com
+EMAIL_SERVER_PORT=465
+EMAIL_SERVER_USER=resend
+EMAIL_SERVER_PASSWORD=<your-resend-api-key>
+EMAIL_FROM=noreply@yourdomain.com
 ```
 
-In the Vercel dashboard, set these environment variables:
+4. Redeploy — magic link sign-in will work for any email address
 
-| Variable | Where to get it |
-|---|---|
-| `DATABASE_URL` | Vercel Postgres add-on (one click) or Neon/Supabase free tier |
-| `NEXTAUTH_SECRET` | `openssl rand -base64 32` |
-| `NEXTAUTH_URL` | Your Vercel deployment URL |
-| `EMAIL_SERVER_*` | Resend.com — sign up, get API key, 10 minutes |
-| `FLOWLEDGER_ADMIN_EMAILS` | Your real email address |
-| `CANTON_NETWORK_ENV` | Leave as `mock` until NaaS credentials arrive |
+#### 2. Finish the onboarding flow
 
-After setting `DATABASE_URL` to Postgres, run:
-```bash
-npx prisma migrate deploy
-```
+When a new user signs up for the first time (no org membership), they land at `/onboarding`. Verify the 4-step wizard is complete and polished — it is the first thing every real user sees after signing in.
 
-### 2. Apply for Featured App status — do this this week
+#### 3. GitHub → Vercel auto-deploy (2 min)
 
-Once you have a live URL, apply at **canton.foundation/featured-app-request**. The committee review takes approximately 2 weeks, so submit as early as possible. You do not need to be on MainNet yet — you are applying for the right, not activating it.
+You are currently running `vercel --prod` manually after every push. Connect GitHub so deploys happen automatically:
 
-The application asks for your code repo (GitHub is ready), your Canton party ID (use a placeholder), and how you use Activity Markers (the Daml contracts and rewards spec cover this).
+1. Go to vercel.com → your project → Settings → Git
+2. Connect the `enstest1/FlowLedger` repository
+3. Set production branch to `master`
 
-### 3. Wait for NaaS credentials in parallel
+Every `git push` now deploys automatically.
 
-While Vercel is deploying and the Featured App application is in review, Launchnodes or Proof Group sends you credentials. When they arrive, it is literally 5 env vars and a redeploy:
+#### 4. Apply for Featured App status — do this this week
+
+**YES — apply now, do not wait.** The committee review takes ~2 weeks. You have everything you need: a live URL, a GitHub repo, and Daml contracts that emit `FeaturedAppActivityMarker` on every payment. You do not need to be on MainNet to apply — you are securing the right early.
+
+Apply at **[canton.foundation/featured-app-request](https://canton.foundation/featured-app-request/)**
+
+The application asks for:
+- Live app URL → `cc-flow-ledger.vercel.app`
+- Code repo → `github.com/enstest1/FlowLedger`
+- Canton party ID → use a placeholder, update later
+- How you use Activity Markers → every payment transfer creates a `FeaturedAppActivityMarker` via `WalletUserProxy`; the `FeaturedApp.daml` contracts cover `RecordPaymentActivity` and `RecordBatchSettlement`
+
+---
+
+### GOOD TO HAVE — Before Validator Arrives
+
+#### 5. Canton connection checklist page (`/admin/setup`)
+
+Build a visual checklist at `/admin/setup` that shows the 5 startup check results (featured app status, wallet proxy template, treasury balance, traffic balance, pre-approval status) as green/amber/red indicators. When validator credentials land you want to see at a glance what is connected and what is not — much faster than reading server logs.
+
+#### 6. Custom domain
+
+`cc-flow-ledger.vercel.app` is not a great URL to share with potential customers or put on a Featured App application. If you have a domain, attach it in Vercel → Project → Domains. Free with any Vercel plan.
+
+---
+
+### LOWER PRIORITY
+
+#### 7. Mobile responsiveness
+
+The sidebar layout breaks on phone screens — the fixed-width sidebar collapses the main content. A responsive sidebar (collapsible drawer on mobile) would make the app usable for approvers checking invoices on the go.
+
+#### 8. Dark mode
+
+CSS variables support dark mode (`globals.css` has a full `.dark` token set). Wire a toggle button in the topbar that adds/removes the `dark` class on `<html>` and persists the preference to `localStorage`.
+
+---
+
+### CANTON PATH — When NaaS Credentials Arrive
+
+When Launchnodes or Proof Group sends credentials, it is 5 env vars and a redeploy:
 
 ```bash
 CANTON_NETWORK_ENV="devnet"
@@ -840,7 +883,7 @@ CANTON_AUTH_CLIENT_SECRET="<from provider>"
 
 Run the DevNet smoke test checklist, confirm receipts show real UpdateIDs, then flip to `mainnet` with the MainNet credentials.
 
-### 4. Set CANTON_VERIFY_SIGNATURES=true before real users
+### Set CANTON_VERIFY_SIGNATURES=true before real users
 
 Once on MainNet, enable wallet signature verification so party ID ownership is cryptographically proven:
 
@@ -848,7 +891,7 @@ Once on MainNet, enable wallet signature verification so party ID ownership is c
 CANTON_VERIFY_SIGNATURES="true"
 ```
 
-### 5. Set CANTON_DAML_PACKAGE_ID after uploading the DAR
+### Set CANTON_DAML_PACKAGE_ID after uploading the DAR
 
 ```bash
 cd daml
