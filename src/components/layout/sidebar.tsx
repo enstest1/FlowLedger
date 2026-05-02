@@ -39,7 +39,7 @@ export function Sidebar({ slug, orgName, role }: SidebarProps) {
   ]
 
   return (
-    <aside className="w-[200px] bg-white border-r border-zinc-200 flex flex-col min-h-screen shrink-0">
+    <aside className="w-[200px] bg-white border-r border-zinc-200 flex flex-col h-screen sticky top-0 shrink-0">
       {/* Brand header */}
       <div className="px-4 py-4 border-b border-zinc-200 flex items-center gap-2.5">
         <FlowLedgerMark size={24} />
@@ -49,7 +49,7 @@ export function Sidebar({ slug, orgName, role }: SidebarProps) {
       </div>
 
       {/* Navigation — Fitts's Law: full-width targets with generous py */}
-      <nav className="flex-1 py-2">
+      <nav className="flex-1 py-2 overflow-y-auto">
         {navItems.map((item) => {
           const Icon = item.icon
           const active =
