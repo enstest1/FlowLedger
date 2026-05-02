@@ -1,33 +1,3 @@
-/* CommitMono — humanist monospace, perfect for a financial ledger */
-@font-face {
-  font-family: 'CommitMono';
-  src: url('/fonts/CommitMono-400-Regular.otf') format('opentype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'CommitMono';
-  src: url('/fonts/CommitMono-400-Italic.otf') format('opentype');
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'CommitMono';
-  src: url('/fonts/CommitMono-700-Regular.otf') format('opentype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-@font-face {
-  font-family: 'CommitMono';
-  src: url('/fonts/CommitMono-700-Italic.otf') format('opentype');
-  font-weight: 700;
-  font-style: italic;
-  font-display: swap;
-}
-
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -35,9 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: 'CommitMono', ui-monospace, 'Courier New', monospace;
-  --font-mono: 'CommitMono', ui-monospace, 'Courier New', monospace;
-  --font-heading: 'CommitMono', ui-monospace, 'Courier New', monospace;
+  --font-sans: var(--font-commit-mono), ui-monospace, 'Courier New', monospace;
+  --font-mono: var(--font-commit-mono), ui-monospace, 'Courier New', monospace;
+  --font-heading: var(--font-commit-mono), ui-monospace, 'Courier New', monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -153,14 +123,14 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'CommitMono', ui-monospace, 'Courier New', monospace;
+    font-family: var(--font-commit-mono), ui-monospace, 'Courier New', monospace;
     font-size: 14px;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
   html {
-    font-family: 'CommitMono', ui-monospace, 'Courier New', monospace;
+    font-family: var(--font-commit-mono), ui-monospace, 'Courier New', monospace;
   }
   /* Tighter heading tracking — monospace headings benefit from no extra spacing */
   h1, h2, h3, h4, h5, h6 {
