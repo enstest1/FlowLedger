@@ -140,20 +140,20 @@ export default function SignInPage() {
             </>
           )}
 
-          {/* Dev shortcuts */}
+          {/* Demo accounts */}
           <div className="mt-6 pt-5 border-t border-zinc-100">
             <p className="text-[10px] text-zinc-400 mb-2.5 text-center tracking-wider uppercase">
-              Dev shortcuts
+              Try a demo account
             </p>
             <div className="flex gap-2">
               <a
-                href="/api/dev/signin?email=admin@flowledger.io"
+                href="/api/demo/signin?role=admin"
                 className="flex-1 text-center text-xs bg-[#ebefe9] text-[#2d5a4f] py-2.5 rounded-md hover:bg-[#d6dcd2] transition-colors font-bold border border-[#b0c4b8]"
               >
                 Admin
               </a>
               <a
-                href="/api/dev/signin?email=approver@flowledger.io"
+                href="/api/demo/signin?role=approver"
                 className="flex-1 text-center text-xs bg-zinc-100 text-zinc-600 py-2.5 rounded-md hover:bg-zinc-200 transition-colors font-bold border border-zinc-200"
               >
                 Approver
