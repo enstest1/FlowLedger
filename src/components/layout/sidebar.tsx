@@ -39,7 +39,7 @@ export function Sidebar({ slug, orgName, role }: SidebarProps) {
   ]
 
   return (
-    <aside className="w-[200px] bg-white border-r border-zinc-200 flex flex-col h-screen sticky top-0 shrink-0">
+    <aside className="w-[200px] bg-white border-r border-zinc-200 flex flex-col h-full shrink-0">
       {/* Brand header */}
       <div className="px-4 py-4 border-b border-zinc-200 flex items-center gap-2.5">
         <FlowLedgerMark size={24} />

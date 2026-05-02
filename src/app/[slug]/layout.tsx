@@ -26,20 +26,20 @@ export default async function OrgLayout({
   if (!membership) redirect('/')
 
   return (
-    <div className="flex min-h-screen">
+    <div className="flex h-screen overflow-hidden">
       <Sidebar
         slug={slug}
         orgName={membership.organization.name}
         role={membership.role}
       />
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col overflow-hidden">
         <Topbar
           userName={session.user.name}
           userEmail={session.user.email}
           role={membership.role}
           cantonPartyId={user?.cantonPartyId}
         />
-        <main className="flex-1 p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>
   )
