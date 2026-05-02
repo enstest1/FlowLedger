@@ -47,6 +47,29 @@ export default function LandingPage() {
             Sign In
           </Link>
         </div>
+
+        {/* Demo quick-login — visible when DEMO_MODE=true */}
+        {process.env.DEMO_MODE === 'true' && (
+          <div className="mt-8 flex flex-col items-center gap-3">
+            <p className="text-xs text-zinc-400 uppercase tracking-widest font-bold">Try a demo account</p>
+            <div className="flex items-center gap-3">
+              <a
+                href="/api/demo/signin?role=admin"
+                className="flex items-center gap-2 border border-[#b0c4b8] bg-[#ebefe9] text-[#2d5a4f] px-5 py-2.5 rounded-md text-sm font-bold hover:bg-[#dde8e0] transition-colors"
+              >
+                <Shield size={14} />
+                Admin
+              </a>
+              <a
+                href="/api/demo/signin?role=approver"
+                className="flex items-center gap-2 border border-zinc-200 bg-white text-zinc-700 px-5 py-2.5 rounded-md text-sm font-bold hover:bg-zinc-50 transition-colors"
+              >
+                <CheckCircle size={14} />
+                Approver
+              </a>
+            </div>
+          </div>
+        )}
       </section>
 
       {/* Features */}
