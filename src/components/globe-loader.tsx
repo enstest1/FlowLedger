@@ -28,7 +28,7 @@ export function GlobeLoader() {
     if (!ctx) return
 
     // CSS display size fills the sidebar; 2× pixel buffer for retina
-    const CSS = 176
+    const CSS = 140
     const W = CSS * 2
     const H = CSS * 2
     canvas.width = W
@@ -259,7 +259,7 @@ export function GlobeLoader() {
   return (
     <canvas
       ref={canvasRef}
-      style={{ width: 176, height: 176 }}
+      style={{ width: 140, height: 140 }}
       className="block"
       aria-label="Live payment globe"
     />
