@@ -38,8 +38,13 @@ export function CantonWalletConnect({ linkOnly = false, onSuccess }: CantonWalle
       const info = await connectCantonWallet()
       await submitPartyId(info.partyId)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Wallet connection failed')
-      setMode('error')
+      // Auto-fall-through to manual entry so the user is never stuck spinning.
+      // This covers: Nightly wallet intercepts, timeout, or any non-CIP-103 wallet.
+      const msg = err instanceof Error ? err.message : 'Wallet connection failed'
+      setError(msg.includes('timed out')
+        ? 'The detected wallet doesn\'t support Canton (CIP-103). Enter your party ID manually.'
+        : msg)
+      setMode('manual')
     }
   }
 

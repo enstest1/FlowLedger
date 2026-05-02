@@ -37,14 +37,33 @@ export function isCantonWalletInstalled(): boolean {
   return typeof window !== 'undefined' && typeof window.canton !== 'undefined'
 }
 
+function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
+  return Promise.race([
+    promise,
+    new Promise<T>((_, reject) =>
+      setTimeout(() => reject(new Error(`${label} timed out after ${ms / 1000}s`)), ms)
+    ),
+  ])
+}
+
 export async function connectCantonWallet(): Promise<CantonWalletInfo> {
   if (!isCantonWalletInstalled()) {
     throw new Error('Canton wallet not detected')
   }
 
-  // CIP-103: connect and get primary account
-  await window.canton!.request({ method: 'connect' })
-  const account = await window.canton!.request<AccountInfo>({ method: 'getPrimaryAccount' })
+  // CIP-103: connect and get primary account.
+  // 8-second timeout guards against non-Canton wallets (e.g. Nightly) that inject
+  // window.canton but never resolve CIP-103 requests.
+  await withTimeout(
+    window.canton!.request({ method: 'connect' }),
+    8000,
+    'Canton wallet connect'
+  )
+  const account = await withTimeout(
+    window.canton!.request<AccountInfo>({ method: 'getPrimaryAccount' }),
+    8000,
+    'Canton getPrimaryAccount'
+  )
 
   return {
     partyId: account.partyId,
