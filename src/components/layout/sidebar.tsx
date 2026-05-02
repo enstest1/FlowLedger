@@ -39,7 +39,7 @@ export function Sidebar({ slug, orgName, role }: SidebarProps) {
   ]
 
   return (
-    <aside className="w-[200px] bg-white border-r border-zinc-200 flex flex-col h-full min-h-0 shrink-0">
+    <aside className="relative w-[200px] bg-white border-r border-zinc-200 flex flex-col h-full min-h-0 shrink-0">
       {/* Brand header */}
       <div className="px-4 py-4 border-b border-zinc-200 flex items-center gap-2.5">
         <FlowLedgerMark size={24} />
@@ -49,7 +49,8 @@ export function Sidebar({ slug, orgName, role }: SidebarProps) {
       </div>
 
       {/* Navigation — Fitts's Law: full-width targets with generous py */}
-      <nav className="flex-1 py-2 overflow-y-auto">
+      {/* pb-[185px] reserves space so nav items never scroll behind the globe */}
+      <nav className="flex-1 py-2 overflow-y-auto pb-[185px]">
         {navItems.map((item) => {
           const Icon = item.icon
           const active =
@@ -75,8 +76,8 @@ export function Sidebar({ slug, orgName, role }: SidebarProps) {
         })}
       </nav>
 
-      {/* Globe + footer */}
-      <div className="border-t border-zinc-100 pt-3 pb-2 flex flex-col items-center gap-2">
+      {/* Globe + footer — absolute so it's always visible at the bottom */}
+      <div className="absolute bottom-0 left-0 right-0 bg-white border-t border-zinc-100 pt-3 pb-2 flex flex-col items-center gap-2">
         <GlobeLoader />
         <p className="text-[10px] text-zinc-400 tracking-wider uppercase pb-1">
           Canton Network
