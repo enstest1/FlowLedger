@@ -1,13 +1,5 @@
 'use client'
 import { useEffect, useRef } from 'react'
-import {
-  geoOrthographic,
-  geoPath,
-  geoGraticule10,
-  geoInterpolate,
-} from 'd3-geo'
-import { feature, mesh } from 'topojson-client'
-import type { Topology, GeometryCollection } from 'topojson-specification'
 
 const HUBS: [number, number][] = [
   [-74.0, 40.7], [-87.6, 41.9], [-118.2, 34.1], [-99.1, 19.4],
@@ -17,7 +9,6 @@ const HUBS: [number, number][] = [
   [55.3, 25.3], [72.83, 19.07], [77.2, 28.6], [103.8, 1.35],
   [100.5, 13.75], [114.16, 22.3], [121.47, 31.23], [116.4, 39.9],
   [139.69, 35.68], [126.97, 37.57], [151.21, -33.87], [-123.12, 49.28],
-  [-43.2, -22.9], [88.36, 22.57], [174.76, -36.85],
 ]
 
 interface Transfer {
@@ -27,115 +18,177 @@ interface Transfer {
   dur: number
 }
 
-const CSS_SIZE = 160
-const BITMAP = CSS_SIZE * 2
-const R = BITMAP / 2 - 4
-const CX = BITMAP / 2
-const CY = BITMAP / 2
-const INK = '#1a1a18'
-const TRANSFER_DUR = 1800
-const FADE_DUR = 600
-const SPAWN_EVERY = 240
-const PERIOD_MS = 6000
-
 export function GlobeLoader() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    const ctx = canvas.getContext('2d')
+    const ctx = canvas.getContext('2d')!
     if (!ctx) return
 
-    const projection = geoOrthographic()
-      .translate([CX, CY])
-      .scale(R)
-      .clipAngle(90)
+    const CSS = 160
+    const W = CSS * 2
+    const H = CSS * 2
+    canvas.width = W
+    canvas.height = H
 
-    const pathGen = geoPath(projection, ctx)
-    const graticule = geoGraticule10()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sphere = { type: 'Sphere' } as any
+    const cx = W / 2
+    const cy = H / 2
+    const R = W / 2 - 4
 
-    let land: GeoJSON.FeatureCollection | null = null
-    let borders: GeoJSON.MultiLineString | null = null
     let animId: number
+    let land: GeoJSON.FeatureCollection | null = null
+
+    const INK = '#1a1a18'
+    const TRANSFER_DUR = 1800
+    const FADE_DUR = 600
+    const SPAWN_EVERY = 280
+    const PERIOD_MS = 8000
+
     const transfers: Transfer[] = []
     let lastSpawn = 0
-    const t0 = Date.now()
+
+    function project(lon: number, lat: number, rot: number): [number, number] | null {
+      const λ = ((lon - rot) * Math.PI) / 180
+      const φ = (lat * Math.PI) / 180
+      const x = Math.cos(φ) * Math.sin(λ)
+      const y = Math.sin(φ)
+      const z = Math.cos(φ) * Math.cos(λ)
+      if (z < 0) return null
+      return [cx + R * x, cy - R * y]
+    }
+
+    function geoInterp(a: [number, number], b: [number, number], t: number): [number, number] {
+      const toRad = Math.PI / 180
+      const φ1 = a[1] * toRad, λ1 = a[0] * toRad
+      const φ2 = b[1] * toRad, λ2 = b[0] * toRad
+      const ax = Math.cos(φ1) * Math.cos(λ1), ay = Math.cos(φ1) * Math.sin(λ1), az = Math.sin(φ1)
+      const bx = Math.cos(φ2) * Math.cos(λ2), by = Math.cos(φ2) * Math.sin(λ2), bz = Math.sin(φ2)
+      const dot = Math.max(-1, Math.min(1, ax * bx + ay * by + az * bz))
+      const omega = Math.acos(dot)
+      if (omega < 1e-6) return a
+      const s = Math.sin(omega)
+      const sa = Math.sin((1 - t) * omega) / s
+      const sb = Math.sin(t * omega) / s
+      return [
+        Math.atan2(sa * ay + sb * by, sa * ax + sb * bx) / toRad,
+        Math.asin(Math.max(-1, Math.min(1, sa * az + sb * bz))) / toRad,
+      ]
+    }
+
+    function drawArc(src: [number, number], dst: [number, number], p: number, alpha: number, rot: number) {
+      const steps = 32
+      const end = Math.max(0.001, Math.min(1, p))
+      ctx.beginPath()
+      let drawing = false
+      for (let i = 0; i <= steps; i++) {
+        const pt = project(...geoInterp(src, dst, (i / steps) * end), rot)
+        if (!pt) { drawing = false; continue }
+        if (!drawing) { ctx.moveTo(pt[0], pt[1]); drawing = true }
+        else ctx.lineTo(pt[0], pt[1])
+      }
+      ctx.lineWidth = 1.6
+      ctx.strokeStyle = `rgba(26,26,24,${0.8 * alpha})`
+      ctx.lineCap = 'round'
+      ctx.stroke()
+
+      const hp = project(...geoInterp(src, dst, end), rot)
+      if (hp) {
+        ctx.beginPath()
+        ctx.arc(hp[0], hp[1], 3, 0, Math.PI * 2)
+        ctx.fillStyle = `rgba(26,26,24,${alpha})`
+        ctx.fill()
+        ctx.beginPath()
+        ctx.arc(hp[0], hp[1], 6, 0, Math.PI * 2)
+        ctx.strokeStyle = `rgba(26,26,24,${0.28 * alpha})`
+        ctx.lineWidth = 1
+        ctx.stroke()
+      }
+    }
+
+    function drawPulse(coord: [number, number], age: number, maxAge: number, rot: number) {
+      const pt = project(...coord, rot)
+      if (!pt) return
+      const k = age / maxAge
+      ctx.beginPath()
+      ctx.arc(pt[0], pt[1], 2 + k * 10, 0, Math.PI * 2)
+      ctx.strokeStyle = `rgba(26,26,24,${(1 - k) * 0.5})`
+      ctx.lineWidth = 1
+      ctx.stroke()
+    }
 
     function spawnTransfer(now: number) {
       const a = HUBS[(Math.random() * HUBS.length) | 0]
       let b = HUBS[(Math.random() * HUBS.length) | 0]
       let g = 0
-      while (b === a || Math.hypot(a[0] - b[0], a[1] - b[1]) < 25) {
+      while (b === a || Math.hypot(a[0] - b[0], a[1] - b[1]) < 30) {
         b = HUBS[(Math.random() * HUBS.length) | 0]
         if (++g > 8) break
       }
       transfers.push({ src: a, dst: b, t0: now, dur: TRANSFER_DUR + Math.random() * 600 })
     }
 
-    function drawArc(src: [number, number], dst: [number, number], p: number, alpha: number) {
-      const interp = geoInterpolate(src, dst)
-      const end = Math.max(0.001, Math.min(1, p))
-      const line: GeoJSON.LineString = {
-        type: 'LineString',
-        coordinates: Array.from({ length: 29 }, (_, i) => interp((i / 28) * end)),
+    function drawGlobe(rot: number) {
+      ctx.clearRect(0, 0, W, H)
+
+      ctx.beginPath()
+      ctx.arc(cx, cy, R, 0, Math.PI * 2)
+      ctx.fillStyle = 'rgba(26,26,24,0.03)'
+      ctx.fill()
+
+      for (let lon = -180; lon < 180; lon += 30) {
+        ctx.beginPath()
+        let first = true
+        for (let lat = -90; lat <= 90; lat += 2) {
+          const pt = project(lon, lat, rot)
+          if (!pt) { first = true; continue }
+          if (first) { ctx.moveTo(pt[0], pt[1]); first = false }
+          else ctx.lineTo(pt[0], pt[1])
+        }
+        ctx.strokeStyle = 'rgba(26,26,24,0.13)'
+        ctx.lineWidth = 0.6
+        ctx.stroke()
       }
-      ctx!.beginPath()
-      pathGen(line)
-      ctx!.lineWidth = 1.4
-      ctx!.strokeStyle = `rgba(26,26,24,${0.85 * alpha})`
-      ctx!.lineCap = 'round'
-      ctx!.stroke()
-
-      const pt = projection(interp(end))
-      if (pt && isFinite(pt[0]) && isFinite(pt[1])) {
-        ctx!.beginPath()
-        ctx!.arc(pt[0], pt[1], 2.6, 0, Math.PI * 2)
-        ctx!.fillStyle = `rgba(26,26,24,${alpha})`
-        ctx!.fill()
-        ctx!.beginPath()
-        ctx!.arc(pt[0], pt[1], 5.2, 0, Math.PI * 2)
-        ctx!.strokeStyle = `rgba(26,26,24,${0.35 * alpha})`
-        ctx!.lineWidth = 1
-        ctx!.stroke()
+      for (let lat = -60; lat <= 60; lat += 30) {
+        ctx.beginPath()
+        let first = true
+        for (let lon = -180; lon <= 180; lon += 2) {
+          const pt = project(lon, lat, rot)
+          if (!pt) { first = true; continue }
+          if (first) { ctx.moveTo(pt[0], pt[1]); first = false }
+          else ctx.lineTo(pt[0], pt[1])
+        }
+        ctx.strokeStyle = 'rgba(26,26,24,0.13)'
+        ctx.lineWidth = 0.6
+        ctx.stroke()
       }
-    }
-
-    function drawPulse(coord: [number, number], age: number, maxAge: number) {
-      const pt = projection(coord)
-      if (!pt || !isFinite(pt[0]) || !isFinite(pt[1])) return
-      const k = age / maxAge
-      ctx!.beginPath()
-      ctx!.arc(pt[0], pt[1], 2 + k * 10, 0, Math.PI * 2)
-      ctx!.strokeStyle = `rgba(26,26,24,${(1 - k) * 0.55})`
-      ctx!.lineWidth = 1.2
-      ctx!.stroke()
-    }
-
-    function draw() {
-      const lambda = ((Date.now() - t0) / PERIOD_MS) * 360
-      projection.rotate([lambda, -12, 0])
-      ctx!.clearRect(0, 0, BITMAP, BITMAP)
-
-      ctx!.beginPath(); pathGen(sphere)
-      ctx!.fillStyle = 'rgba(26,26,24,0.035)'; ctx!.fill()
-
-      ctx!.beginPath(); pathGen(graticule)
-      ctx!.lineWidth = 1; ctx!.strokeStyle = 'rgba(26,26,24,0.22)'; ctx!.stroke()
 
       if (land) {
-        ctx!.beginPath(); pathGen(land)
-        ctx!.fillStyle = 'rgba(26,26,24,0.10)'; ctx!.fill()
-      }
-      if (borders) {
-        ctx!.beginPath(); pathGen(borders)
-        ctx!.lineWidth = 1.4; ctx!.strokeStyle = INK; ctx!.stroke()
-      }
-      if (land) {
-        ctx!.beginPath(); pathGen(land)
-        ctx!.lineWidth = 1.6; ctx!.strokeStyle = INK; ctx!.stroke()
+        const features = (land as unknown as { features?: GeoJSON.Feature[] }).features ?? []
+        for (const feature of features) {
+          if (!feature.geometry) continue
+          const geom = feature.geometry as GeoJSON.Polygon | GeoJSON.MultiPolygon
+          const rings =
+            geom.type === 'Polygon' ? geom.coordinates
+            : geom.type === 'MultiPolygon' ? geom.coordinates.flat()
+            : []
+          for (const ring of rings) {
+            ctx.beginPath()
+            let first = true
+            for (const [lo, la] of ring) {
+              const pt = project(lo, la, rot)
+              if (!pt) { first = true; continue }
+              if (first) { ctx.moveTo(pt[0], pt[1]); first = false }
+              else ctx.lineTo(pt[0], pt[1])
+            }
+            ctx.fillStyle = 'rgba(26,26,24,0.08)'
+            ctx.fill()
+            ctx.strokeStyle = 'rgba(26,26,24,0.55)'
+            ctx.lineWidth = 0.8
+            ctx.stroke()
+          }
+        }
       }
 
       const now = performance.now()
@@ -147,29 +200,36 @@ export function GlobeLoader() {
         if (age < t.dur) {
           const p = age / t.dur
           const ease = p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2
-          drawArc(t.src, t.dst, ease, 1)
-          if (age < 500) drawPulse(t.src, age, 500)
+          drawArc(t.src, t.dst, ease, 1, rot)
+          if (age < 400) drawPulse(t.src, age, 400, rot)
         } else {
-          drawArc(t.src, t.dst, 1, (1 - (age - t.dur) / FADE_DUR))
-          drawPulse(t.dst, age - t.dur, FADE_DUR)
+          drawArc(t.src, t.dst, 1, 1 - (age - t.dur) / FADE_DUR, rot)
+          drawPulse(t.dst, age - t.dur, FADE_DUR, rot)
         }
       }
 
-      ctx!.beginPath(); pathGen(sphere)
-      ctx!.lineWidth = 2; ctx!.strokeStyle = INK; ctx!.stroke()
+      ctx.beginPath()
+      ctx.arc(cx, cy, R, 0, Math.PI * 2)
+      ctx.strokeStyle = INK
+      ctx.lineWidth = 2
+      ctx.stroke()
+    }
 
-      animId = requestAnimationFrame(draw)
+    const t0 = Date.now()
+    function tick() {
+      const rot = ((Date.now() - t0) / PERIOD_MS) * 360
+      drawGlobe(rot)
+      animId = requestAnimationFrame(tick)
     }
 
     fetch('https://unpkg.com/world-atlas@2.0.2/countries-110m.json')
       .then(r => r.json())
-      .then((topo: Topology) => {
-        const objects = topo.objects as Record<string, GeometryCollection>
-        land = feature(topo, objects.land) as unknown as GeoJSON.FeatureCollection
-        borders = mesh(topo, objects.countries, (a, b) => a !== b) as unknown as GeoJSON.MultiLineString
+      .then(async (topo) => {
+        const { feature } = await import('topojson-client')
+        land = feature(topo, topo.objects.land) as unknown as GeoJSON.FeatureCollection
       })
       .catch(() => {})
-      .finally(() => { animId = requestAnimationFrame(draw) })
+      .finally(() => tick())
 
     return () => cancelAnimationFrame(animId)
   }, [])
@@ -177,9 +237,7 @@ export function GlobeLoader() {
   return (
     <canvas
       ref={canvasRef}
-      width={BITMAP}
-      height={BITMAP}
-      style={{ width: CSS_SIZE, height: CSS_SIZE }}
+      style={{ width: 160, height: 160 }}
       className="block"
       aria-label="Live payment globe"
     />
