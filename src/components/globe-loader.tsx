@@ -38,6 +38,7 @@ export function GlobeLoader() {
     const R = W / 2 - 4
 
     let animId: number
+    let land: GeoJSON.FeatureCollection | null = null
 
     const INK = '#1a1a18'
     const TRANSFER_DUR = 1800
@@ -163,6 +164,33 @@ export function GlobeLoader() {
         ctx.stroke()
       }
 
+      if (land) {
+        const features = (land as unknown as { features?: GeoJSON.Feature[] }).features ?? []
+        for (const feature of features) {
+          if (!feature.geometry) continue
+          const geom = feature.geometry as GeoJSON.Polygon | GeoJSON.MultiPolygon
+          const rings =
+            geom.type === 'Polygon' ? geom.coordinates
+            : geom.type === 'MultiPolygon' ? geom.coordinates.flat()
+            : []
+          for (const ring of rings) {
+            ctx.beginPath()
+            let first = true
+            for (const [lo, la] of ring) {
+              const pt = project(lo, la, rot)
+              if (!pt) { first = true; continue }
+              if (first) { ctx.moveTo(pt[0], pt[1]); first = false }
+              else ctx.lineTo(pt[0], pt[1])
+            }
+            ctx.fillStyle = 'rgba(26,26,24,0.08)'
+            ctx.fill()
+            ctx.strokeStyle = 'rgba(26,26,24,0.55)'
+            ctx.lineWidth = 0.8
+            ctx.stroke()
+          }
+        }
+      }
+
       const now = performance.now()
       if (now - lastSpawn > SPAWN_EVERY) { lastSpawn = now; spawnTransfer(now) }
       for (let i = transfers.length - 1; i >= 0; i--) {
@@ -195,6 +223,15 @@ export function GlobeLoader() {
     }
 
     tick()
+
+    // Load land data in background — fills in on next frame once ready
+    fetch('https://unpkg.com/world-atlas@2.0.2/countries-110m.json')
+      .then(r => r.json())
+      .then(async (topo) => {
+        const { feature } = await import('topojson-client')
+        land = feature(topo, topo.objects.land) as unknown as GeoJSON.FeatureCollection
+      })
+      .catch(() => {})
 
     return () => cancelAnimationFrame(animId)
   }, [])
