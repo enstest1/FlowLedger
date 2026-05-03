@@ -222,6 +222,9 @@ export function GlobeLoader() {
       animId = requestAnimationFrame(tick)
     }
 
+    // Start animating immediately — land fills in once the fetch completes
+    tick()
+
     fetch('https://unpkg.com/world-atlas@2.0.2/countries-110m.json')
       .then(r => r.json())
       .then(async (topo) => {
@@ -229,7 +232,6 @@ export function GlobeLoader() {
         land = feature(topo, topo.objects.land) as unknown as GeoJSON.FeatureCollection
       })
       .catch(() => {})
-      .finally(() => tick())
 
     return () => cancelAnimationFrame(animId)
   }, [])
