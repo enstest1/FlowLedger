@@ -6,6 +6,8 @@ Private invoice, approval, and payment workflow for Canton Network teams.
 
 FlowLedger is a B2B SaaS tool for Canton ecosystem teams — validators, node operators, app builders, dev shops, grant teams, and consultants. Create private invoices, route them through an approval workflow, settle payments in USDCx or CC on Canton Network, generate cryptographically verifiable receipts backed by Canton proof-of-transfer, and earn CC rewards on every payment batch via the Canton Featured App program.
 
+**Live:** [flowledger.cc](https://flowledger.cc) · **Repo:** [github.com/enstest1/FlowLedger](https://github.com/enstest1/FlowLedger) · **By:** PelpaLabs
+
 ---
 
 ## Table of Contents
@@ -791,7 +793,7 @@ If `CANTON_NETWORK_ENV=mock`, checks are skipped (`SKIP` status) since there is 
 
 ## Launch Checklist — What To Do Right Now
 
-The app is live at [cc-flow-ledger.vercel.app](https://cc-flow-ledger.vercel.app) with Neon Postgres and demo accounts working. These are the next steps in priority order.
+The app is live at [flowledger.cc](https://flowledger.cc) with Neon Postgres and demo accounts working. These are the next steps in priority order.
 
 ---
 
@@ -835,11 +837,35 @@ Every `git push` now deploys automatically.
 
 Apply at **[canton.foundation/featured-app-request](https://canton.foundation/featured-app-request/)**
 
-The application asks for:
-- Live app URL → `cc-flow-ledger.vercel.app`
-- Code repo → `github.com/enstest1/FlowLedger`
-- Canton party ID → use a placeholder, update later
-- How you use Activity Markers → every payment transfer creates a `FeaturedAppActivityMarker` via `WalletUserProxy`; the `FeaturedApp.daml` contracts cover `RecordPaymentActivity` and `RecordBatchSettlement`
+---
+
+#### Featured App Application — Submitted Answers
+
+**Name of applying institution:** PelpaLabs
+
+**URL of the applying institution:** https://flowledger.cc
+
+**Product Website:** https://flowledger.cc
+
+**Emails for Responsible Persons:** cflash18@gmail.com
+
+**Party ID:** Devnet onboarding in progress — party ID to be confirmed upon Canton participant node connection
+
+**Public code repository:** https://github.com/enstest1/FlowLedger
+
+**Summary of Company and Background:**
+PelpaLabs is a software development studio building financial infrastructure on distributed ledger technology. FlowLedger is our flagship product — an accounts-payable and payment settlement platform built natively on Canton Network, designed to bring verifiable on-chain finance to businesses operating within the Canton ecosystem.
+
+**What the application does:**
+FlowLedger digitizes the full invoice-to-payment lifecycle on Canton Network. Businesses create and manage vendor invoices, route them through configurable multi-role approval workflows (Submitter → Approver → Admin), group approved invoices into payment batches, and settle payments on-chain via Canton. The platform provides real-time treasury visibility, a complete audit trail, and export capabilities — replacing manual accounts-payable processes with verifiable, on-ledger settlement.
+
+**Expected users:**
+Finance teams at small-to-medium businesses, DAOs, and organizations operating within the Canton ecosystem who need verifiable accounts-payable workflows. Primary users are accounts payable managers, financial controllers, and CFOs who want multi-party approval guarantees with on-chain payment settlement. Secondary users are vendors who receive verifiable proof of payment recorded on the Canton ledger.
+
+**How the application interacts with Canton Network, Canton Coin, and Activity Markets:**
+FlowLedger integrates with Canton Network at two levels. First, identity — each organization and user is identified by a Canton Party ID via CIP-103 wallet authentication, and all invoice approvals and payment authorizations are signed by the relevant parties, creating an immutable on-ledger record. Second, settlement — approved payment batches are executed as Canton contract exercises, with each transaction recorded on the sync domain providing tamper-proof proof of payment. Every invoice approval, batch creation, and payment settlement constitutes a Canton activity, making FlowLedger a direct participant in the Activity Markets reward structure. Canton Coin settlement is the target payment rail for cross-party vendor payments.
+
+---
 
 ---
 
