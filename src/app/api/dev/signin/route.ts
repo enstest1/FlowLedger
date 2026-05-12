@@ -54,11 +54,14 @@ export async function GET(request: NextRequest) {
     : '/onboarding'
 
   const response = NextResponse.redirect(new URL(redirectTo, request.url))
-  response.cookies.set('authjs.session-token', sessionToken, {
+  const useSecurePrefix = request.nextUrl.protocol === 'https:'
+  const cookieName = useSecurePrefix ? '__Secure-authjs.session-token' : 'authjs.session-token'
+  response.cookies.set(cookieName, sessionToken, {
     expires,
     httpOnly: true,
     sameSite: 'lax',
     path: '/',
+    secure: useSecurePrefix,
   })
 
   return response
