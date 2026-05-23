@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useSyncExternalStore } from 'react'
 import { useRouter } from 'next/navigation'
 import { Wallet, AlertCircle, CheckCircle, Loader2, ExternalLink } from 'lucide-react'
 import {
@@ -8,6 +8,8 @@ import {
   connectCantonWallet,
   validatePartyIdFormat,
 } from '@/lib/canton/wallet-client'
+
+const subscribe = () => () => {}
 
 type Mode = 'idle' | 'connecting' | 'manual' | 'success' | 'error'
 
@@ -20,16 +22,16 @@ interface CantonWalletConnectProps {
 
 export function CantonWalletConnect({ linkOnly = false, onSuccess }: CantonWalletConnectProps) {
   const router = useRouter()
-  const [walletInstalled, setWalletInstalled] = useState(false)
+  const walletInstalled = useSyncExternalStore(
+    subscribe,
+    isCantonWalletInstalled,
+    () => false,
+  )
   const [mode, setMode] = useState<Mode>('idle')
   const [submitting, setSubmitting] = useState(false)
   const [partyId, setPartyId] = useState('')
   const [error, setError] = useState('')
   const [connectedPartyId, setConnectedPartyId] = useState('')
-
-  useEffect(() => {
-    setWalletInstalled(isCantonWalletInstalled())
-  }, [])
 
   async function handleWalletConnect() {
     setMode('connecting')

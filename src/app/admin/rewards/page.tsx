@@ -77,6 +77,7 @@ export default async function AdminRewardsPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let rewardSummaries: any[] = []
   try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     rewardSummaries = await (prisma as any).rewardSummary.findMany({
       orderBy: { periodStart: 'desc' },
       take: 24,

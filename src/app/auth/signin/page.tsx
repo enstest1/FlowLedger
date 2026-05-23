@@ -146,12 +146,14 @@ export default function SignInPage() {
               Try a demo account
             </p>
             <div className="flex gap-2">
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- API route, not a page */}
               <a
                 href="/api/demo/signin?role=admin"
                 className="flex-1 text-center text-xs bg-[#ebefe9] text-[#2d5a4f] py-2.5 rounded-md hover:bg-[#d6dcd2] transition-colors font-bold border border-[#b0c4b8]"
               >
                 Admin
               </a>
+              {/* eslint-disable-next-line @next/next/no-html-link-for-pages -- API route, not a page */}
               <a
                 href="/api/demo/signin?role=approver"
                 className="flex-1 text-center text-xs bg-zinc-100 text-zinc-600 py-2.5 rounded-md hover:bg-zinc-200 transition-colors font-bold border border-zinc-200"

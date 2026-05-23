@@ -357,7 +357,7 @@ export function IntroAnimation({ onDone }: { onDone: () => void }) {
   const lastTsRef = useRef<number | null>(null)
   const doneRef   = useRef(false)
   const onDoneRef = useRef(onDone)
-  onDoneRef.current = onDone
+  useEffect(() => { onDoneRef.current = onDone }, [onDone])
 
   // Scale stage to fit viewport
   useEffect(() => {

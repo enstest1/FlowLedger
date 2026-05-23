@@ -59,7 +59,7 @@ export default async function DashboardPage({
         where: {
           organizationId: org.id,
           status: { notIn: ['PAID', 'CANCELLED', 'REJECTED'] },
-          dueDate: { lte: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) },
+          dueDate: { lte: new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000) },
         },
         include: { vendor: true },
         orderBy: { dueDate: 'asc' },
