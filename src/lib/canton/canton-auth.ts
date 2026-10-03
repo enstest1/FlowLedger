@@ -1,6 +1,7 @@
-// Canton token acquisition — two modes:
-//   "self-signed"          LocalNet / cn-quickstart — sign a JWT locally, no auth server needed
-//   "client-credentials"   DevNet / NaaS / MainNet  — fetch token from your OAuth2 provider
+// Canton token acquisition.
+// - self-signed: LocalNet / cn-quickstart only
+// - client-credentials: hosted DevNet/TestNet/MainNet OAuth2
+// - CANTON_AUTH_BEARER_TOKEN: optional short-lived diagnostic/provider token
 
 import { SignJWT } from 'jose'
 
@@ -11,29 +12,38 @@ interface TokenCache {
   expiresAt: number
 }
 
+interface OAuthTokenResponse {
+  access_token?: string
+  expires_in?: number
+}
+
 let cache: TokenCache | null = null
 
 export async function getCantonToken(): Promise<string> {
-  // Return cached token if still valid (with 60-second buffer)
+  const suppliedToken = process.env.CANTON_AUTH_BEARER_TOKEN?.trim()
+  if (suppliedToken) return suppliedToken
+
   if (cache && Date.now() < cache.expiresAt - 60_000) {
     return cache.token
   }
-
   const mode = (process.env.CANTON_AUTH_MODE ?? 'self-signed') as AuthMode
-  const token = mode === 'client-credentials'
+  const response = mode === 'client-credentials'
     ? await fetchOAuth2Token()
-    : await makeSelfSignedToken()
+    : { token: await makeSelfSignedToken(), ttlMs: 55 * 60 * 1000 }
 
-  // Cache for 55 minutes (tokens are typically 1-hour)
-  cache = { token, expiresAt: Date.now() + 55 * 60 * 1000 }
-  return token
+  cache = {
+    token: response.token,
+    expiresAt: Date.now() + response.ttlMs,
+  }
+  return response.token
 }
 
-// LocalNet only — signs a JWT with a shared HMAC secret, no auth server required
+// LocalNet only. Do not use a shared HMAC secret for hosted production validators.
 async function makeSelfSignedToken(): Promise<string> {
   const secret = new TextEncoder().encode(
     process.env.CANTON_AUTH_SECRET ?? 'localnet-dev-secret'
   )
+
   return new SignJWT({
     sub: process.env.CANTON_AUTH_SUBJECT ?? 'ledger-api-user',
   })
@@ -43,13 +53,13 @@ async function makeSelfSignedToken(): Promise<string> {
     .setExpirationTime('1h')
     .sign(secret)
 }
-
-// DevNet / NaaS — OAuth2 client credentials grant
-async function fetchOAuth2Token(): Promise<string> {
+async function fetchOAuth2Token(): Promise<{ token: string; ttlMs: number }> {
   const tokenUrl = process.env.CANTON_AUTH_TOKEN_URL
   const clientId = process.env.CANTON_AUTH_CLIENT_ID
   const clientSecret = process.env.CANTON_AUTH_CLIENT_SECRET
   const audience = process.env.CANTON_AUTH_AUDIENCE
+  const scope = process.env.CANTON_AUTH_SCOPE
+  const clientAuth = process.env.CANTON_AUTH_CLIENT_AUTH ?? 'body'
 
   if (!tokenUrl || !clientId || !clientSecret) {
     throw new Error(
@@ -57,16 +67,27 @@ async function fetchOAuth2Token(): Promise<string> {
     )
   }
 
-  const body = new URLSearchParams({
-    grant_type: 'client_credentials',
-    client_id: clientId,
-    client_secret: clientSecret,
-    ...(audience ? { audience } : {}),
-  })
+  if (clientAuth !== 'body' && clientAuth !== 'basic') {
+    throw new Error('CANTON_AUTH_CLIENT_AUTH must be "body" or "basic"')
+  }
+
+  const body = new URLSearchParams({ grant_type: 'client_credentials' })
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/x-www-form-urlencoded',
+  }
+
+  if (clientAuth === 'basic') {
+    headers.Authorization = `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`
+  } else {
+    body.set('client_id', clientId)
+    body.set('client_secret', clientSecret)
+  }
+  if (audience) body.set('audience', audience)
+  if (scope) body.set('scope', scope)
 
   const res = await fetch(tokenUrl, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    headers,
     body: body.toString(),
   })
 
@@ -75,6 +96,18 @@ async function fetchOAuth2Token(): Promise<string> {
     throw new Error(`Canton OAuth2 token request failed ${res.status}: ${text}`)
   }
 
-  const data = await res.json() as { access_token: string }
-  return data.access_token
+  const data = await res.json() as OAuthTokenResponse
+  if (!data.access_token) {
+    throw new Error('Canton OAuth2 token response did not include access_token')
+  }
+
+  const ttlSeconds = Number.isFinite(data.expires_in) && (data.expires_in ?? 0) > 120
+    ? Number(data.expires_in)
+    : 3600
+
+  return {
+    token: data.access_token,
+    // Keep at least a 60-second safety margin via the cache check above.
+    ttlMs: ttlSeconds * 1000,
+  }
 }

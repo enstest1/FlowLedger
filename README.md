@@ -4,9 +4,12 @@
 
 Private invoice, approval, and payment workflow for Canton Network teams.
 
-FlowLedger is a B2B SaaS tool for Canton ecosystem teams — validators, node operators, app builders, dev shops, grant teams, and consultants. Create private invoices, route them through an approval workflow, settle payments in USDCx or CC on Canton Network, generate cryptographically verifiable receipts backed by Canton proof-of-transfer, and earn CC rewards on every payment batch via the Canton Featured App program.
+FlowLedger is a B2B SaaS tool for Canton ecosystem teams — validators, node operators, app builders, dev shops, grant teams, and consultants. Create private invoices, route them through an approval workflow, settle payments in USDCx or CC on Canton Network, generate cryptographically verifiable receipts backed by Canton proof-of-transfer, and participate in the Canton Featured App program once the app is live, approved, and correctly attributed on the target network.
 
 **Live:** [flowledger.cc](https://flowledger.cc) · **Repo:** [github.com/enstest1/FlowLedger](https://github.com/enstest1/FlowLedger) · **By:** PelpaLabs
+
+> [!IMPORTANT]
+> **Canton live-readiness update (2026-10-02):** the web app builds and the production URL responds, but this checkout is still in `mock` mode and does not yet have a real validator Party ID or provider credentials. Run `npm run canton:doctor` before enabling DevNet/MainNet. The current onboarding source of truth is [`docs/CANTON_LIVE_READINESS.md`](docs/CANTON_LIVE_READINESS.md).
 
 ---
 
@@ -45,7 +48,7 @@ FlowLedger is a B2B SaaS tool for Canton ecosystem teams — validators, node op
 | **Payroll Batches** | Group approved invoices into a batch. Pre-flight check validates treasury balance and vendor pre-approvals before execution. |
 | **Payments** | Batch execution sends individual CIP-0056 token transfers per vendor. Partial batch support — one failure does not block the rest. |
 | **Receipts** | Every payment generates a receipt with Canton UpdateID (cryptographic proof-of-transfer), payer/payee party IDs, and full TransferObject JSON. |
-| **Rewards** | Earn CC rewards on every payment batch via FeaturedAppActivityMarker integration. Rewards dashboard shows coupon count, wallet proxy status, and projected earnings. |
+| **Featured App readiness** | Tracks Canton/Featured App integration status. Actual CC reward eligibility requires a real app Party ID, Featured App approval, and target-network activity attribution; legacy marker code is not proof of reward earning. |
 | **CSV Export** | Export invoices and receipts with Canton UpdateIDs for accounting. |
 | **Audit Trail** | Every action logged with actor, timestamp, and entity. |
 | **Team Roles** | ADMIN, TREASURY, APPROVER, ACCOUNTANT — each with scoped permissions. |
@@ -55,7 +58,7 @@ FlowLedger is a B2B SaaS tool for Canton ecosystem teams — validators, node op
 ## Tech Stack
 
 ```
-Frontend     Next.js 14 App Router, TypeScript, Tailwind CSS, shadcn/ui
+Frontend     Next.js 16 App Router, TypeScript, Tailwind CSS, shadcn/ui
 Backend      Next.js server actions + API routes
 Database     Prisma ORM — SQLite (local dev), PostgreSQL (production)
 Auth         NextAuth.js v5 — email magic link + Canton wallet (CIP-103)
@@ -64,12 +67,11 @@ Validation   Zod
 Exports      csv-writer
 Charts       Recharts (dashboard only)
 
-Canton Reward Layer:
+Legacy/transition Canton reward layer (not production-verified):
   WalletProxyManager   Wraps WalletUserProxy from splice-util-featured-app-proxies
-                       Ensures every payment creates a FeaturedAppActivityMarker
+                       Legacy marker/proxy path; network/version dependent
   RewardTracker        Reads CC reward state from Canton validator + Scan API
-                       Provides coupon counts, minting status, traffic balance,
-                       and projected monthly CC earnings
+                       Legacy reward reads; do not treat projections as production forecasts
   MainNetCantonAdapter Extends DevNetCantonAdapter with reward earning path —
                        tries proxied transfer first, falls back to direct transfer
   StartupChecks        5-point boot check: featured app status, wallet proxy template,
@@ -372,7 +374,7 @@ The **Rewards** page (`/[slug]/rewards`) is restricted to ADMIN and TREASURY rol
    Treasury confirms → for each invoice in batch:
      Select UTXOs explicitly from treasury
      Execute CIP-0056 token transfer via WalletUserProxy (MainNet) or direct (DevNet)
-     FeaturedAppActivityMarker created on-chain → earns CC rewards
+     Activity attribution recorded according to the target network reward mode; verify via Scan
      Store UpdateID + TransferObject JSON → create PaymentReceipt
      Store activityMarkerContractId on receipt (MainNet)
    Batch → PAID (or PARTIAL if any failed)
@@ -534,11 +536,11 @@ DevNet is the real shared Canton test network. It is not self-serve — you need
 
 | Provider | Contact | Notes |
 |---|---|---|
-| **Launchnodes** | canton@launchnodes.com | Most developer-focused, fastest onboarding. Start here. |
+| **Launchnodes** | Launchnodes-Validator@sync.global | Approved NaaS provider |
 | **Proof Group** | ProofGroup-Validator@sync.global | Institutional grade |
-| **Edgevana** | [canton.foundation/validators](https://canton.foundation/validators/) | High-performance infra |
+| **Edgevana** | edgevana@canton.foundation | Approved NaaS provider |
 
-Full list of 47 approved providers: [canton.foundation/validators](https://canton.foundation/validators/)
+Current approved-provider list: [canton.foundation/validators](https://canton.foundation/validators/)
 
 Pricing is not publicly listed. Contact providers directly. Expect a monthly hosting fee.
 
@@ -643,24 +645,11 @@ CANTON_WALLET_PROXY_TEMPLATE_ID="<from provider>"
 NEXT_PUBLIC_CANTON_NETWORK="mainnet"
 ```
 
-**3. Apply for Featured App status**
+**3. Prepare for Featured App status**
 
-Every payment transfer in FlowLedger emits a `FeaturedAppActivityMarker` on-chain. To earn CC rewards from these markers, you need Featured App approval from the Canton Foundation.
+Do not submit a placeholder Featured App request. The current Canton Foundation form requires a real application Party ID, validator host, SV sponsor, network testing evidence, anti-abuse controls, testing instructions/access, and other production details. The Foundation says to apply when the app is within two weeks of MainNet launch; it also asks whether the app has already been live on MainNet for at least 14 days or needs a detailed exception.
 
-Apply at [canton.foundation/featured-app-request](https://canton.foundation/featured-app-request/) within 2 weeks of your production launch. The application asks for:
-
-- Company background
-- App description, party ID, code repo link
-- How you use Canton Coin and Activity Markets
-- Estimated transaction volumes
-- Fraud prevention controls
-- Smart contract audit status
-
-Process: submit form → 5-minute presentation to Tokenomics Committee → Committee vote → on-chain governance vote (~2 weeks total).
-
-Once approved, set `CANTON_FEATURED_APP_RIGHT_CONTRACT_ID` to the contract ID you receive. The startup check on the next boot will confirm it.
-
-From January 2026, **62% of total network rewards** (~516 million CC/month) are distributed to featured apps proportionally based on transaction activity.
+Before applying, complete the validator connection and capture a real DevNet/TestNet Update ID. See [`docs/CANTON_LIVE_READINESS.md`](docs/CANTON_LIVE_READINESS.md).
 
 **4. Production deployment checklist**
 
@@ -681,86 +670,18 @@ From January 2026, **62% of total network rewards** (~516 million CC/month) are 
 
 ---
 
-## Earning CC Rewards
+## Featured App / CC Reward Readiness
 
-FlowLedger is a Canton featured app. Every payment batch execution earns CC (Amulet) rewards for the FlowLedger provider party, which can be reinvested into treasury operations or shared with org members.
+FlowLedger is **not currently entitled to claim CC rewards** in this checkout. Reward eligibility requires a real app-provider Party ID plus Featured App approval and correct activity attribution on the target network.
 
-### How It Works
+The repo contains older `FeaturedAppActivityMarker` / `WalletUserProxy` integration code. CIP-0104 introduced traffic-based app rewards; current Splice documentation says marker-based rewards become irrelevant on networks where CIP-0104 is enabled. Therefore:
 
-Canton Network distributes 62% of total minted CC each month (~516M CC/month from January 2026) to featured app developers, proportional to their share of total network transaction activity. The mechanism:
+- do not use the old 516M-CC/month projection as a production forecast;
+- do not claim that creating a marker proves a reward was earned;
+- verify the target network's reward mode and FlowLedger activity through Scan;
+- use the Ledger API + Canton Network Token Standard for the payment integration.
 
-1. Each payment transfer is submitted through a `WalletUserProxy` contract
-2. The proxy automatically creates a `FeaturedAppActivityMarker` on-chain
-3. The Canton DSO counts markers each consensus round (~10 minutes)
-4. CC rewards mint into the provider party's wallet each round
-5. The validator's reward automation redeems `AppRewardCoupon` contracts automatically
-
-### What Earns Rewards
-
-| Action | Earns Reward |
-|---|---|
-| Payment batch execution → per-vendor transfer via WalletUserProxy | YES — one FeaturedAppActivityMarker per transfer |
-| Batch settlement → FlowLedgerAppProvider.RecordBatchSettlement (Daml) | YES — one marker per batch (belt-and-suspenders) |
-| Invoice creation | No — intermediate step only |
-| Invoice approval | No — intermediate step only |
-| Pre-approval setup | No — administrative operation |
-| Vendor registration | No — administrative operation |
-
-### What Does NOT Earn Rewards
-
-Only actual asset transfers earn markers. Workflow steps — creating invoices, approving them, setting pre-approvals, updating statuses — do not create markers and do not consume reward budget.
-
-This is by design: the Canton tokenomics reward apps that drive real economic activity (token transfers) on the network.
-
-### Getting Featured App Status
-
-Without a `FeaturedAppRight` contract, FlowLedger still creates `FeaturedAppActivityMarker` contracts on-chain, but they do NOT earn CC rewards. The Featured App approval is what activates reward earning.
-
-Steps:
-1. Launch on MainNet
-2. Within 2 weeks, submit the application at [canton.foundation/featured-app-request](https://canton.foundation/featured-app-request/)
-3. 5-minute presentation to the Canton Tokenomics Committee
-4. Committee vote + on-chain governance vote (~2 weeks total)
-5. Receive `FeaturedAppRight` contract ID
-6. Set `CANTON_FEATURED_APP_RIGHT_CONTRACT_ID` in your environment
-7. Restart the app — startup check confirms the contract
-
-### Reward Calculation
-
-```
-projected_monthly_CC =
-  (app_txns_per_month / (network_tps × 60 × 60 × 24 × 30))
-  × 516,000,000 CC
-
-USD_value = projected_monthly_CC × current_CC_rate
-```
-
-- Monitor live CC/USD rate at [canton.thetie.io](https://canton.thetie.io)
-- The `/rewards` dashboard shows real-time estimates based on actual network TPS from the Scan API
-- A conservative USD placeholder of 0.004 USD/CC is used when the Scan API is unreachable
-
-### Switching to MainNet: Reward Readiness Checklist
-
-- [ ] `CANTON_NETWORK_ENV=mainnet` — activates `MainNetCantonAdapter`
-- [ ] `CANTON_APP_PROVIDER_PARTY` set — the party that receives rewards
-- [ ] `CANTON_WALLET_PROXY_TEMPLATE_ID` set — enables proxied transfers
-- [ ] `CANTON_SCAN_URL` set — enables network TPS-based reward estimates
-- [ ] Featured App application submitted (within 2 weeks of launch)
-- [ ] `CANTON_FEATURED_APP_RIGHT_CONTRACT_ID` set after approval — activates reward earning
-
-### Current Reward Status
-
-Reward status is checked on every boot when `CANTON_NETWORK_ENV=mainnet`. Check your server logs for `[Startup]` lines. If `CANTON_FEATURED_APP_RIGHT_CONTRACT_ID` is not set, you will see:
-
-```
-[Startup] WARNING: No FeaturedAppRight contract found for party <party>.
-Activity markers will be created but rewards will not be earned until
-featured app status is approved at canton.foundation/featured-app-request
-```
-
-The `/rewards` dashboard also shows the Featured App Status card — amber (PENDING) until the contract ID is set, green (ACTIVE) once it is.
-
----
+See [`docs/CANTON_LIVE_READINESS.md`](docs/CANTON_LIVE_READINESS.md) for the current path.
 
 ## Startup Checks
 
@@ -831,45 +752,25 @@ You are currently running `vercel --prod` manually after every push. Connect Git
 
 Every `git push` now deploys automatically.
 
-#### 4. Apply for Featured App status — do this this week
+#### 4. Featured App application - wait for the live gate
 
-**YES — apply now, do not wait.** The committee review takes ~2 weeks. You have everything you need: a live URL, a GitHub repo, and Daml contracts that emit `FeaturedAppActivityMarker` on every payment. You do not need to be on MainNet to apply — you are securing the right early.
+**Do not submit the Featured App form yet.** This checkout does not have the required real Party ID or validator connection, and the current form expects production/testing evidence.
 
-Apply at **[canton.foundation/featured-app-request](https://canton.foundation/featured-app-request/)**
+Submission gate:
 
----
+1. Real DevNet validator + FlowLedger Party ID provisioned.
+2. `npm run canton:doctor` passes.
+3. Live payment path uses Ledger API + Token Standard rather than internal validator-wallet REST endpoints.
+4. At least one real test settlement has a Canton Update ID plus Scan evidence.
+5. MainNet launch timing is known and the request is within the Foundation's submission window.
 
-#### Featured App Application — Submitted Answers
+Then prepare the complete current form, including validator host/SV sponsor, testing evidence, anti-abuse controls, audit status, testing access, customer referrals where applicable, and the MainNet-14-day answer or exception request.
 
-**Name of applying institution:** PelpaLabs
-
-**URL of the applying institution:** https://flowledger.cc
-
-**Product Website:** https://flowledger.cc
-
-**Emails for Responsible Persons:** cflash18@gmail.com
-
-**Party ID:** Devnet onboarding in progress — party ID to be confirmed upon Canton participant node connection
-
-**Public code repository:** https://github.com/enstest1/FlowLedger
-
-**Summary of Company and Background:**
-PelpaLabs is a software development studio building financial infrastructure on distributed ledger technology. FlowLedger is our flagship product — an accounts-payable and payment settlement platform built natively on Canton Network, designed to bring verifiable on-chain finance to businesses operating within the Canton ecosystem.
-
-**What the application does:**
-FlowLedger digitizes the full invoice-to-payment lifecycle on Canton Network. Businesses create and manage vendor invoices, route them through configurable multi-role approval workflows (Submitter → Approver → Admin), group approved invoices into payment batches, and settle payments on-chain via Canton. The platform provides real-time treasury visibility, a complete audit trail, and export capabilities — replacing manual accounts-payable processes with verifiable, on-ledger settlement.
-
-**Expected users:**
-Finance teams at small-to-medium businesses, DAOs, and organizations operating within the Canton ecosystem who need verifiable accounts-payable workflows. Primary users are accounts payable managers, financial controllers, and CFOs who want multi-party approval guarantees with on-chain payment settlement. Secondary users are vendors who receive verifiable proof of payment recorded on the Canton ledger.
-
-**How the application interacts with Canton Network, Canton Coin, and Activity Markets:**
-FlowLedger integrates with Canton Network at two levels. First, identity — each organization and user is identified by a Canton Party ID via CIP-103 wallet authentication, and all invoice approvals and payment authorizations are signed by the relevant parties, creating an immutable on-ledger record. Second, settlement — approved payment batches are executed as Canton contract exercises, with each transaction recorded on the sync domain providing tamper-proof proof of payment. Every invoice approval, batch creation, and payment settlement constitutes a Canton activity, making FlowLedger a direct participant in the Activity Markets reward structure. Canton Coin settlement is the target payment rail for cross-party vendor payments.
+See [`docs/CANTON_LIVE_READINESS.md`](docs/CANTON_LIVE_READINESS.md).
 
 ---
 
----
-
-### GOOD TO HAVE — Before Validator Arrives
+### GOOD TO HAVE - Before Validator Arrives
 
 #### 5. Canton connection checklist page (`/admin/setup`)
 
@@ -895,7 +796,7 @@ CSS variables support dark mode (`globals.css` has a full `.dark` token set). Wi
 
 ### CANTON PATH — When NaaS Credentials Arrive
 
-When Launchnodes or Proof Group sends credentials, it is 5 env vars and a redeploy:
+When a NaaS provider sends credentials, configure the full identity/connectivity bundle and run the doctor before enabling real transactions:
 
 ```bash
 CANTON_NETWORK_ENV="devnet"
@@ -905,9 +806,13 @@ CANTON_AUTH_MODE="client-credentials"
 CANTON_AUTH_TOKEN_URL="<from provider>"
 CANTON_AUTH_CLIENT_ID="<from provider>"
 CANTON_AUTH_CLIENT_SECRET="<from provider>"
+CANTON_AUTH_AUDIENCE="<from provider>"
+CANTON_AUTH_SUBJECT="<ledger-api user from provider>"
+CANTON_PARTY_ID="<hosted FlowLedger party id>"
+CANTON_SCAN_URL="<current DevNet scan url>"
 ```
 
-Run the DevNet smoke test checklist, confirm receipts show real UpdateIDs, then flip to `mainnet` with the MainNet credentials.
+Then run `npm run canton:doctor`. Only after OAuth, `/v2/version`, and Party ID checks pass should we execute a DevNet Token Standard smoke transaction and capture its real Update ID.
 
 ### Set CANTON_VERIFY_SIGNATURES=true before real users
 
@@ -917,15 +822,9 @@ Once on MainNet, enable wallet signature verification so party ID ownership is c
 CANTON_VERIFY_SIGNATURES="true"
 ```
 
-### Set CANTON_DAML_PACKAGE_ID after uploading the DAR
+### Build and upload the Daml package
 
-```bash
-cd daml
-daml build
-daml ledger upload-dar --host <validator-host> --port 3901 .daml/dist/flowledger-1.0.0.dar
-# Copy the package ID from the build output
-CANTON_DAML_PACKAGE_ID="<hash from daml build>"
-```
+Current Digital Asset SDK releases use `dpm` rather than the deprecated Daml Assistant. This Windows machine does not currently have `dpm` or Java installed, so the DAR still needs a clean local compile before validator testing. Install `dpm` + JDK 17+, build the package, then upload the DAR using the provider-supported Ledger API (`POST /v2/dars/`) or managed deployment procedure. Record the deployed package ID in `CANTON_DAML_PACKAGE_ID`.
 
 ### Pre-approval monitoring (automatic on Vercel)
 
