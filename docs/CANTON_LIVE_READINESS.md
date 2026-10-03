@@ -107,8 +107,8 @@ For now:
 2. Put the provider-issued values in local `.env` only; never commit secrets.
 3. Set `CANTON_NETWORK_ENV=devnet` and run `npm run canton:doctor`.
 4. Do not proceed until OAuth + `/v2/version` + Party ID checks pass.
-5. Replace the legacy payment adapter path with Ledger API + Token Standard calls.
-6. Install the current Digital Asset `dpm` toolchain plus JDK 17+, compile the Daml package, then upload the DAR through the provider-supported Ledger API (`POST /v2/dars/`) or equivalent managed procedure.
+5. Use the Wallet SDK + Ledger API + Token Standard path for balances, holdings, transfers, and Update-ID verification.
+6. Build the Daml package with DPM/JDK 17 (`dpm build` is passing), then upload and vet the DAR through the provider-supported Canton admin API or equivalent managed procedure.
 7. Execute one bona-fide DevNet payment/settlement and capture its Canton Update ID.
 8. Verify the update in Scan and record the testing evidence for the Featured App application.
 9. Repeat on TestNet if required by the validator/provider and committee path.

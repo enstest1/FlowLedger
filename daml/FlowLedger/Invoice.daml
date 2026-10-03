@@ -1,0 +1,30 @@
+module FlowLedger.Invoice where
+
+-- A private on-ledger representation of an approved-payables workflow item.
+-- The application database remains the query/index layer; Canton records the
+-- authoritative creation and approval/rejection exercise events.
+template Invoice
+  with
+    invoiceId : Text
+    orgId : Text
+    vendorParty : Party
+    treasuryParty : Party
+    amount : Decimal
+    assetId : Text
+    description : Text
+  where
+    signatory treasuryParty
+    observer vendorParty
+
+    nonconsuming choice Approve : ()
+      with
+        approverParty : Party
+      controller approverParty
+      do pure ()
+
+    nonconsuming choice Reject : ()
+      with
+        approverParty : Party
+        note : Text
+      controller approverParty
+      do pure ()

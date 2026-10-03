@@ -1,0 +1,15 @@
+module FlowLedger.PayrollBatch where
+
+-- Immutable batch intent recorded before/alongside settlement.
+-- Settlement itself uses the Canton Network Token Standard via Ledger API.
+template PayrollBatch
+  with
+    batchId : Text
+    orgId : Text
+    treasuryParty : Party
+    invoiceIds : [Text]
+    totalAmount : Decimal
+    assetId : Text
+    featuredApp : Bool
+  where
+    signatory treasuryParty

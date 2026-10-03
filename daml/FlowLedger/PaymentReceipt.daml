@@ -1,0 +1,16 @@
+module FlowLedger.PaymentReceipt where
+
+-- Links FlowLedger business records to the Canton settlement Update ID.
+template PaymentReceipt
+  with
+    receiptId : Text
+    invoiceId : Text
+    batchId : Text
+    payerParty : Party
+    payeeParty : Party
+    amount : Decimal
+    assetId : Text
+    updateId : Text
+  where
+    signatory payerParty
+    observer payeeParty

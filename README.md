@@ -517,8 +517,8 @@ The token transfer flow (the part that generates real UpdateIDs) works without c
 To deploy when ready:
 ```bash
 cd daml
-daml build
-daml ledger upload-dar --host localhost --port 3901 .daml/dist/flowledger-1.0.0.dar
+dpm build
+# Upload/vet .daml/dist/flowledger-1.0.0.dar using the validator provider's Canton admin API or managed procedure
 ```
 Then fill in the TODO bodies in `devnet-adapter.ts`.
 
@@ -824,7 +824,7 @@ CANTON_VERIFY_SIGNATURES="true"
 
 ### Build and upload the Daml package
 
-Current Digital Asset SDK releases use `dpm` rather than the deprecated Daml Assistant. This Windows machine does not currently have `dpm` or Java installed, so the DAR still needs a clean local compile before validator testing. Install `dpm` + JDK 17+, build the package, then upload the DAR using the provider-supported Ledger API (`POST /v2/dars/`) or managed deployment procedure. Record the deployed package ID in `CANTON_DAML_PACKAGE_ID`.
+The project is validated with DPM 1.0.22 and Temurin JDK 17.0.20.1. `dpm build` now produces `.daml/dist/flowledger-1.0.0.dar`. Current Splice releases no longer support DAR upload through the Ledger API; upload and vet the DAR through the validator provider's Canton admin API or managed deployment procedure, then record the deployed package ID in `CANTON_DAML_PACKAGE_ID`.
 
 ### Pre-approval monitoring (automatic on Vercel)
 

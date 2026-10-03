@@ -27,14 +27,13 @@ interface AccountInfo {
   publicKey?: string
 }
 
-declare global {
-  interface Window {
-    canton?: CIP103Provider
-  }
+function cantonProvider(): CIP103Provider | undefined {
+  if (typeof window === 'undefined') return undefined
+  return (window as unknown as { canton?: CIP103Provider }).canton
 }
 
 export function isCantonWalletInstalled(): boolean {
-  return typeof window !== 'undefined' && typeof window.canton !== 'undefined'
+  return cantonProvider() !== undefined
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
@@ -55,12 +54,12 @@ export async function connectCantonWallet(): Promise<CantonWalletInfo> {
   // 8-second timeout guards against non-Canton wallets (e.g. Nightly) that inject
   // window.canton but never resolve CIP-103 requests.
   await withTimeout(
-    window.canton!.request({ method: 'connect' }),
+    cantonProvider()!.request({ method: 'connect' }),
     8000,
     'Canton wallet connect'
   )
   const account = await withTimeout(
-    window.canton!.request<AccountInfo>({ method: 'getPrimaryAccount' }),
+    cantonProvider()!.request<AccountInfo>({ method: 'getPrimaryAccount' }),
     8000,
     'Canton getPrimaryAccount'
   )
@@ -77,7 +76,7 @@ export async function signChallengeWithWallet(nonce: string): Promise<string> {
   }
 
   // CIP-103: sign an arbitrary message with the party key
-  const result = await window.canton!.request<{ signature: string }>({
+  const result = await cantonProvider()!.request<{ signature: string }>({
     method: 'signMessage',
     params: { message: `FlowLedger auth: ${nonce}` },
   })
@@ -92,8 +91,8 @@ export function onWalletAccountChanged(callback: (info: CantonWalletInfo | null)
     callback(accounts[0] ?? null)
   }
 
-  window.canton!.on('accountsChanged', handler)
-  return () => window.canton!.removeListener('accountsChanged', handler)
+  cantonProvider()!.on('accountsChanged', handler)
+  return () => cantonProvider()!.removeListener('accountsChanged', handler)
 }
 
 // Canton party ID format: hint::hexfingerprint (64+ lowercase hex chars)

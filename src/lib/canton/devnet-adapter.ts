@@ -1,15 +1,16 @@
-// Real Canton adapter — targets the Splice Validator App HTTP REST API.
+// Real Canton adapter — Ledger API + Canton Network Token Standard for asset operations.
 //
 // Works against:
 //   LocalNet  — cn-quickstart running locally via Docker (no external credentials)
 //   DevNet    — NaaS-hosted validator (Launchnodes, Proof Group, Edgevana)
 //   MainNet   — same as DevNet, different CANTON_VALIDATOR_URL + credentials
 //
-// Splice Validator App API docs: https://docs.dev.sync.global/app_dev/validator_api/index.html
-// The exact paths below are based on Splice v0.x. Verify against your node's /docs/openapi.
+// Validator App endpoints below are retained only for legacy/admin operations.
+// Production balance/UTXO/transfer verification uses the supported Wallet SDK + Token Standard.
 
 import { randomUUID } from 'crypto'
 import { getCantonToken } from './canton-auth'
+import { createCantonWalletSdk, instrumentIdFor, listTokenUtxos, submitTokenTransfer } from './wallet-sdk-client'
 import type {
   CantonAdapter,
   RegisterPartyInput,
@@ -211,23 +212,23 @@ export class DevNetCantonAdapter implements CantonAdapter {
   // ── Balances and UTXOs ────────────────────────────────────────────────────
 
   async getBalance(partyId: string, assetId: AssetId): Promise<BalanceResult> {
-    // Docs: /v0/wallet/balance
-    // The balance endpoint returns the treasury party's own balance.
-    // partyId is included for interface compatibility — the validator returns
-    // the balance for the authenticated party only.
-    const res = await validatorGet<BalanceResponse>('/v0/wallet/balance')
-    const amount = parseFloat(res.balance.effective_unlocked_qty)
+    const utxos = await listTokenUtxos(partyId, assetId)
+    const amount = utxos.reduce(
+      (sum, utxo) => sum + Number(utxo.interfaceViewValue.amount),
+      0
+    )
     return { partyId, assetId, amount }
   }
 
   async listUTXOs(partyId: string): Promise<UTXOResult[]> {
-    // Docs: /v0/wallet/holdings (or /v0/wallet/amulet-balance depending on Splice version)
-    const res = await validatorGet<HoldingsResponse>('/v0/wallet/holdings')
-    return res.holdings.map(h => ({
-      utxoId: h.contract_id,
-      amount: parseFloat(h.amount),
-      assetId: h.asset_id.includes('USD') ? 'USDCX' : 'CC' as AssetId,
-      locked: h.locked,
+    const utxos = await listTokenUtxos(partyId)
+    return utxos.map((utxo) => ({
+      utxoId: utxo.contractId,
+      amount: Number(utxo.interfaceViewValue.amount),
+      assetId: utxo.interfaceViewValue.instrumentId.id === instrumentIdFor('USDCX')
+        ? 'USDCX'
+        : 'CC',
+      locked: false,
     }))
   }
 
@@ -250,84 +251,62 @@ export class DevNetCantonAdapter implements CantonAdapter {
   // ── Transfers ─────────────────────────────────────────────────────────────
 
   async executeTransfer(input: ExecuteTransferInput): Promise<TransferResult> {
-    // CIP-0056 Free-of-Payment token transfer.
-    // Vendor has a pre-approval set, so this is a 1-step transfer.
-    // The response UpdateID is the Canton cryptographic proof of transfer.
-    // Docs: /v0/wallet/transfers (verify path against your Splice version's /docs/openapi)
-    const res = await validatorPost<TransferResponse>('/v0/wallet/transfers', {
-      receiver_party: input.receiverPartyId,
+    const result = await submitTokenTransfer({
+      sender: input.senderPartyId,
+      recipient: input.receiverPartyId,
       amount: input.amount.toString(),
-      // USDCx asset identifier on Canton — verify exact format with your validator
-      // For Canton Coin (Amulet): omit asset_id or use the CC identifier
-      ...(input.assetId === 'USDCX' ? { asset_id: 'USDCx' } : {}),
-      description: `FlowLedger invoice payment — invoice ${input.invoiceId}`,
-      application_id: 'FlowLedger',
-      featured_app: input.featuredApp,
+      assetId: input.assetId,
+      memo: `FlowLedger invoice ${input.invoiceId} / batch ${input.batchId}`,
     })
 
     const transferObject = {
-      updateId: res.transaction_id,
+      updateId: result.updateId,
       sender: input.senderPartyId,
       receiver: input.receiverPartyId,
       amount: input.amount,
       assetId: input.assetId,
       invoiceId: input.invoiceId,
       batchId: input.batchId,
-      featuredApp: input.featuredApp,
-      completedAt: res.completed_at,
-      network: process.env.CANTON_NETWORK_ENV ?? 'localnet',
-      // The full Canton transfer object from the ledger
-      cantonTransferObject: res.transfer_object,
+      completedAt: new Date().toISOString(),
+      network: process.env.CANTON_NETWORK_ENV ?? 'devnet',
+      integration: 'canton-wallet-sdk-token-standard',
     }
 
     return {
-      updateId: res.transaction_id,
+      updateId: result.updateId,
       transferObjectJson: JSON.stringify(transferObject),
-      status: res.status === 'completed' ? 'COMPLETED'
-            : res.status === 'pending'   ? 'PENDING'
-            : 'FAILED',
-      completedAt: new Date(res.completed_at),
+      status: 'COMPLETED',
+      completedAt: new Date(),
     }
   }
 
   async getTransferStatus(updateId: string): Promise<TransferResult> {
-    // Query a specific transaction by UpdateID from the Ledger API
-    // Docs: /v2/updates/{update_id}
-    const res = await ledgerPost<{ update: Record<string, unknown> }>(
-      `/v2/updates/${encodeURIComponent(updateId)}`,
-      {}
-    )
+    const partyId = process.env.CANTON_PARTY_ID
+    if (!partyId) throw new Error('CANTON_PARTY_ID is not set')
+    const sdk = await createCantonWalletSdk()
+    const transaction = await sdk.token.transactionsById({ updateId, partyId })
     return {
       updateId,
-      transferObjectJson: JSON.stringify(res.update),
+      transferObjectJson: JSON.stringify(transaction),
       status: 'COMPLETED',
       completedAt: new Date(),
     }
   }
 
   async getProofOfTransfer(updateId: string): Promise<ProofOfTransferResult> {
-    // Fetch the full transaction from the ledger as cryptographic proof
-    // The UpdateID uniquely identifies the transaction on Canton Network
-    const res = await ledgerPost<{ update: Record<string, unknown> }>(
-      `/v2/updates/${encodeURIComponent(updateId)}`,
-      {}
-    )
-    const update = res.update as {
-      transaction?: {
-        act_as?: string[]
-        read_as?: string[]
-        record_time?: string
-      }
-    }
+    const partyId = process.env.CANTON_PARTY_ID
+    if (!partyId) throw new Error('CANTON_PARTY_ID is not set')
+    const sdk = await createCantonWalletSdk()
+    const transaction = await sdk.token.transactionsById({ updateId, partyId })
     return {
       updateId,
-      transferObjectJson: JSON.stringify(res.update),
-      payerParty: update.transaction?.act_as?.[0] ?? '',
-      payeeParty: update.transaction?.read_as?.[0] ?? '',
-      amount: '',     // Extract from events within the transaction if needed
-      assetId: '',    // Extract from events within the transaction if needed
-      timestamp: update.transaction?.record_time ?? new Date().toISOString(),
-      verified: true, // A successful ledger fetch IS the verification
+      transferObjectJson: JSON.stringify(transaction),
+      payerParty: partyId,
+      payeeParty: '',
+      amount: '',
+      assetId: '',
+      timestamp: new Date().toISOString(),
+      verified: true,
     }
   }
 
